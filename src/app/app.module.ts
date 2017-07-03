@@ -7,6 +7,8 @@ import { MomentModule } from 'angular2-moment';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
+import {InMemoryWebApiModule} from 'angular-in-memory-web-api';
+import {FakeDataService} from "./fake-data.service";
 
 @NgModule({
   declarations: [
@@ -16,7 +18,8 @@ import { HomePage } from '../pages/home/home';
   imports: [
     BrowserModule,
     IonicModule.forRoot(MyApp),
-    MomentModule
+    MomentModule,
+    InMemoryWebApiModule.forRoot(FakeDataService)
   ],
   bootstrap: [IonicApp],
   entryComponents: [
