@@ -9,11 +9,13 @@ import {InMemoryWebApiModule} from 'angular-in-memory-web-api';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
+import {AdminPage} from "../pages/admin/admin";
 
 import {FakeDataService} from '../services/fake-data.service';
 import {UserService} from '../services/user.service';
 import {ToastService} from "../services/toast.service";
 import {CountdownPipe} from './countdown.pipe';
+
 
 @NgModule({
   declarations: [
@@ -31,7 +33,8 @@ import {CountdownPipe} from './countdown.pipe';
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
-    HomePage
+    HomePage,
+    AdminPage
   ],
   providers: [
     StatusBar,

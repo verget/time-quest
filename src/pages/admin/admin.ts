@@ -4,13 +4,13 @@ import {Observable, Subscription} from 'rxjs/Rx';
 import { UserService } from "../../services/user.service";
 import {ToastService} from "../../services/toast.service";
 
-import { User }         from '../../app/user';
+import { User } from '../../app/user';
 
 @Component({
-  selector: 'page-home',
-  templateUrl: 'home.html'
+  selector: 'page-admin',
+  templateUrl: 'admin.html'
 })
-export class HomePage implements OnInit, OnDestroy{
+export class AdminPage implements OnInit, OnDestroy{
   currentTimestamp: number = 0;
   currentUser: User;
   timer: Subscription;
