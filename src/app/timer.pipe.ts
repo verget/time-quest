@@ -3,13 +3,13 @@ import { Pipe, PipeTransform } from '@angular/core';
 /*
  * Transform timestamp to string with 00:00:00 format
  * Usage:
- *   value | countdown
+ *   value | timer
  * Example:
  *   {{ 65 | timer}}
  *   formats to: 00:01:05
  */
-@Pipe({name: 'countdown'})
-export class CountdownPipe implements PipeTransform {
+@Pipe({name: 'timer'})
+export class TimerPipe implements PipeTransform {
   transform(value: number): string {
     if (value <= 0) {
       return "00:00:00";

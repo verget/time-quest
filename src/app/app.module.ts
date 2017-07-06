@@ -12,14 +12,15 @@ import { HomePage } from '../pages/home/home';
 
 import {FakeDataService} from '../services/fake-data.service';
 import {UserService} from '../services/user.service';
+import {CodeService} from '../services/code.service';
 
-import {CountdownPipe} from './countdown.pipe';
+import {TimerPipe} from './timer.pipe';
 
 @NgModule({
   declarations: [
     MyApp,
     HomePage,
-    CountdownPipe
+    TimerPipe
   ],
   imports: [
     BrowserModule,
@@ -37,6 +38,7 @@ import {CountdownPipe} from './countdown.pipe';
     StatusBar,
     SplashScreen,
     UserService,
+    CodeService,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })

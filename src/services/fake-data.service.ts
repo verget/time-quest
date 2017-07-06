@@ -5,9 +5,15 @@ export class FakeDataService implements InMemoryDbService {
     const users = [
       { id: 0,
         name: 'Zero',
-        endTime: '149908496300'
+        endTime: '1499535221000'
       }
     ];
-    return {users};
+    const codes = [
+      {
+        string: "aaa",
+        cost: 100000
+      }
+    ];
+    return {users, codes};
   }
 }

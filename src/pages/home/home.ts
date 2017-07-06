@@ -1,50 +1,54 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NavController } from 'ionic-angular';
+import { LoadingController } from 'ionic-angular';
 import {Observable, Subscription} from 'rxjs/Rx';
 import { UserService } from "../../services/user.service";
-import { User }         from '../../app/user';
+import { CodeService } from "../../services/code.service";
 
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html'
 })
 export class HomePage implements OnInit, OnDestroy{
-  currentTimestamp: number = 0;
-  currentUser: User;
   timer: Subscription;
+  timeDiff: number = 0;
+  loading: any = this.loadingCtrl.create({
+    content: 'Please wait...'
+  });
+  codeString: string;
 
   constructor(public navCtrl: NavController,
-              private userService: UserService) {}
+              private userService: UserService,
+              private codeService: CodeService,
+              public loadingCtrl: LoadingController) {}
+
 
   ngOnInit(): void {
-    this.getUser();
-    this.timer = Observable.timer(0, 1000)
-      .subscribe((t) => {
-        this.currentTimestamp = new Date().getTime();
-      });
+    let currentTimestamp = new Date().getTime();
+    this.loading.present();
+    this.userService.getUser(0).then(currentUser => {
+      this.loading.dismiss();
+      this.timer = Observable.timer(0, 1000)
+        .subscribe((t) => {
+          currentTimestamp = new Date().getTime();
+          this.timeDiff = currentUser.endTime - currentTimestamp;
+        });
+    });
   }
 
   ngOnDestroy(): void {
     this.timer.unsubscribe();
   }
 
-  getUser(): void {
-    this.userService.getUser(0).then(user => {
-      this.currentUser = user
-    });
-  }
-
-}
-
-
-
-@Component({
-  selector: 'my-app',
-  template: 'Ticks (every second) : {{ticks}}'
-})
-export class AppComponent {
-  ticks =0;
-  ngOnInit(){
-
+  checkCode(): void {
+    if (this.codeString) {
+      this.codeService.getCode(this.codeString)
+        .then((codeObject) => {
+          console.log(codeObject);
+        })
+        .catch((err) => {
+          console.error(err);
+        })
+    }
   }
 }

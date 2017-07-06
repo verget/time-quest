@@ -7,8 +7,31 @@
 </ion-header>
 
 <ion-content padding>
-  {{currentTimestamp | countdown}}
-  
-  <p>{{currentTimestamp}}</p>
-
+  <ion-grid>
+    <ion-row>
+      <ion-col col-2></ion-col>
+      <ion-col col-8 text-center>
+        <div class="timer">{{timeDiff | timer}}</div>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col col-2></ion-col>
+      <ion-col col-8>
+        <ion-list>
+          <ion-item>
+            <ion-label floating>Код</ion-label>
+            <ion-input type="text"[(ngModel)]="codeString"></ion-input>
+          </ion-item>
+        </ion-list>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col col-2></ion-col>
+      <ion-col col-8>
+        <div padding>
+          <button ion-button color="primary" block (click)="checkCode()">Ввод</button>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>
