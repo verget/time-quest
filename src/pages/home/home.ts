@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NavController } from 'ionic-angular';
 import {Observable, Subscription} from 'rxjs/Rx';
 import { UserService } from "../../services/user.service";
+import {ToastService} from "../../services/toast.service";
+
 import { User }         from '../../app/user';
 
 @Component({
@@ -14,6 +16,7 @@ export class HomePage implements OnInit, OnDestroy{
   timer: Subscription;
 
   constructor(public navCtrl: NavController,
+              private toastService: ToastService,
               private userService: UserService) {}
 
   ngOnInit(): void {

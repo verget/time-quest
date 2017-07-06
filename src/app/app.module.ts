@@ -12,7 +12,7 @@ import { HomePage } from '../pages/home/home';
 
 import {FakeDataService} from '../services/fake-data.service';
 import {UserService} from '../services/user.service';
-
+import {ToastService} from "../services/toast.service";
 import {CountdownPipe} from './countdown.pipe';
 
 @NgModule({
@@ -37,6 +37,7 @@ import {CountdownPipe} from './countdown.pipe';
     StatusBar,
     SplashScreen,
     UserService,
+    ToastService,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })
