@@ -9,12 +9,17 @@ import {InMemoryWebApiModule} from 'angular-in-memory-web-api';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
+import {AdminPage} from "../pages/admin/admin";
 
 import {FakeDataService} from '../services/fake-data.service';
 import {UserService} from '../services/user.service';
 import {CodeService} from '../services/code.service';
+import {ToastService} from "../services/toast.service";
 
 import {TimerPipe} from './timer.pipe';
+
+
+
 
 @NgModule({
   declarations: [
@@ -32,13 +37,15 @@ import {TimerPipe} from './timer.pipe';
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
-    HomePage
+    HomePage,
+    AdminPage
   ],
   providers: [
     StatusBar,
     SplashScreen,
     UserService,
     CodeService,
+    ToastService,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })

@@ -4,6 +4,9 @@ import { LoadingController } from 'ionic-angular';
 import {Observable, Subscription} from 'rxjs/Rx';
 import { UserService } from "../../services/user.service";
 import { CodeService } from "../../services/code.service";
+import {ToastService} from "../../services/toast.service";
+
+import { User }         from '../../app/user';
 
 @Component({
   selector: 'page-home',
@@ -18,6 +21,7 @@ export class HomePage implements OnInit, OnDestroy{
   codeString: string;
 
   constructor(public navCtrl: NavController,
+              private toastService: ToastService,
               private userService: UserService,
               private codeService: CodeService,
               public loadingCtrl: LoadingController) {}
