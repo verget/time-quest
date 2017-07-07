@@ -5,26 +5,29 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 import { MomentModule } from 'angular2-moment';
 import { HttpModule }    from '@angular/http';
-import {InMemoryWebApiModule} from 'angular-in-memory-web-api';
+import { InMemoryWebApiModule } from 'angular-in-memory-web-api';
+
+import { AngularFireModule } from 'angularfire2';
+import { AngularFireDatabaseModule } from 'angularfire2/database';
+import { AngularFireAuthModule } from 'angularfire2/auth';
+import { environment } from '../environments/environment';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
-import {AdminPage} from "../pages/admin/admin";
+import { AdminPage } from "../pages/admin/admin";
 
-import {FakeDataService} from '../services/fake-data.service';
-import {UserService} from '../services/user.service';
-import {CodeService} from '../services/code.service';
-import {ToastService} from "../services/toast.service";
+import { FakeDataService } from '../services/fake-data.service';
+import { UserService } from '../services/user.service';
+import { CodeService } from '../services/code.service';
+import { ToastService } from "../services/toast.service";
 
-import {TimerPipe} from './timer.pipe';
-
-
-
+import { TimerPipe } from './timer.pipe';
 
 @NgModule({
   declarations: [
     MyApp,
     HomePage,
+    AdminPage,
     TimerPipe
   ],
   imports: [
@@ -32,7 +35,10 @@ import {TimerPipe} from './timer.pipe';
     IonicModule.forRoot(MyApp),
     MomentModule,
     HttpModule,
-    InMemoryWebApiModule.forRoot(FakeDataService)
+    InMemoryWebApiModule.forRoot(FakeDataService),
+    AngularFireModule.initializeApp(environment.firebase),
+    AngularFireDatabaseModule, // imports firebase/database, only needed for database features
+    AngularFireAuthModule, // imports firebase/auth, only needed for auth features
   ],
   bootstrap: [IonicApp],
   entryComponents: [

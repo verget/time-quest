@@ -3,14 +3,15 @@ import { InMemoryDbService } from 'angular-in-memory-web-api';
 export class FakeDataService implements InMemoryDbService {
   createDb() {
     const users = [
-      { id: 0,
+      {
+        id: 0,
         name: 'Zero',
-        endTime: '1499535221000'
+        endTime: 1499535221000
       }
     ];
     const codes = [
       {
-        string: "aaa",
+        string: 'aaa',
         cost: 100000
       }
     ];

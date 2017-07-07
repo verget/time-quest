@@ -18,8 +18,8 @@ export class CodeService {
    * @param id
    * @returns {Promise<any>}
    */
-  getCode(string: string): Promise<Code> {
-    const url = `${this.codesUrl}/${string}`;
+  getCode(string: string): Promise<[Code]> {
+    const url = `${this.codesUrl}/?string=${string}`;
     return this.http.get(url)
       .toPromise()
       .then(response => response.json().data as Code)
