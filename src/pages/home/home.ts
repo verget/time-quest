@@ -6,9 +6,9 @@ import { UserService } from "../../services/user.service";
 import { CodeService } from "../../services/code.service";
 import { ToastService } from "../../services/toast.service";
 
-import {FirebaseObjectObservable, FirebaseListObservable} from 'angularfire2/database';
+import { FirebaseObjectObservable, FirebaseListObservable } from 'angularfire2/database';
 
-import {User} from "../../app/user";
+import { User } from "../../app/user";
 
 @Component({
   selector: 'page-home',
@@ -21,35 +21,24 @@ export class HomePage implements OnInit, OnDestroy{
     content: 'Please wait...'
   });
   codeString: string;
-  currentUser: FirebaseObjectObservable<User>;
-  users: FirebaseListObservable<any[]>;
+  currentUser: User;
 
-  constructor(public navCtrl: NavController,
+  constructor(private navCtrl: NavController,
               private toastService: ToastService,
               private userService: UserService,
               private codeService: CodeService,
-              public loadingCtrl: LoadingController) {
-
-    this.users = this.userService.getUsers();
+              private loadingCtrl: LoadingController) {
   }
 
-
   ngOnInit(): void {
-    let currentTimestamp = new Date().getTime();
-    this.loading.present();
-    this.currentUser = this.userService.getUser(0);
-    this.currentUser.subscribe((currentUser) => {
+    this.userService.currentUser.subscribe((userObject) => {
+      this.currentUser = userObject;
       this.timer = Observable.timer(0, 1000)
         .subscribe((t) => {
-          currentTimestamp = new Date().getTime();
-          this.timeDiff = currentUser.endTime - currentTimestamp;
+          let currentTimestamp = new Date().getTime();
+          this.timeDiff = this.currentUser.endTime - currentTimestamp;
         });
     });
-    // this.userService.getUser(0).then(user => {
-    //   this.currentUser = user;
-    //   this.loading.dismiss();
-    //
-    // });
   }
 
   ngOnDestroy(): void {
@@ -58,16 +47,15 @@ export class HomePage implements OnInit, OnDestroy{
 
   checkCode(): void {
     if (this.codeString) {
-      this.codeService.getCode(this.codeString)
-        .then((codeArray) => {
-          if (codeArray.length) {
+      this.userService.enterCode(this.codeString)
+        .then((result) => {
+          if (result) {
             this.toastService.showToast('success-toast', 'success');
-            this.currentUser.endTime += codeArray[0].cost;
           } else {
             this.toastService.showToast('error-toast', 'error');
           }
           this.codeString = '';
-        })
+        });
     }
   }
 }

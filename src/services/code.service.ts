@@ -1,29 +1,26 @@
 import { Injectable } from '@angular/core';
-import { Headers, Http }  from '@angular/http';
-
+import { AngularFireDatabase, FirebaseListObservable, FirebaseObjectObservable } from 'angularfire2/database';
 import 'rxjs/add/operator/toPromise';
 
 import { Code } from '../app/code';
 
 @Injectable()
 export class CodeService {
-
-  private codesUrl = 'api/codes';  // URL to web api
-  private headers = new Headers({'Content-Type': 'application/json'});
-
-  constructor(private http: Http) {}
+  constructor(private db: AngularFireDatabase) {}
 
   /**
    * Method for getting code object from database by code string
    * @param id
    * @returns {Promise<any>}
    */
-  getCode(string: string): Promise<[Code]> {
-    const url = `${this.codesUrl}/?string=${string}`;
-    return this.http.get(url)
-      .toPromise()
-      .then(response => response.json().data as Code)
-      .catch(this.handlerError);
+  getCode(string: string): any {
+    return this.db.list('/codes', {
+      query : {
+        equalTo: {
+          value: string, key: string
+        }
+      }
+    }).toPromise();
   }
 
   private handlerError(error: any): Promise<any> {

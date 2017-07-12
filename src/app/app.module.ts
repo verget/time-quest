@@ -16,7 +16,6 @@ import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
 import { AdminPage } from "../pages/admin/admin";
 
-import { FakeDataService } from '../services/fake-data.service';
 import { UserService } from '../services/user.service';
 import { CodeService } from '../services/code.service';
 import { ToastService } from "../services/toast.service";
@@ -35,7 +34,6 @@ import { TimerPipe } from './timer.pipe';
     IonicModule.forRoot(MyApp),
     MomentModule,
     HttpModule,
-    InMemoryWebApiModule.forRoot(FakeDataService),
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule, // imports firebase/database, only needed for database features
     AngularFireAuthModule, // imports firebase/auth, only needed for auth features

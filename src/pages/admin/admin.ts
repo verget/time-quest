@@ -20,7 +20,7 @@ export class AdminPage implements OnInit, OnDestroy{
               private userService: UserService) {}
 
   ngOnInit(): void {
-    this.getUser();
+    // this.getUser();
     this.timer = Observable.timer(0, 1000)
       .subscribe((t) => {
         this.currentTimestamp = new Date().getTime();
@@ -31,9 +31,9 @@ export class AdminPage implements OnInit, OnDestroy{
     this.timer.unsubscribe();
   }
 
-  getUser(): void {
-    this.userService.getUser(0).then(user => {
-      this.currentUser = user
-    });
-  }
+  // getUser(): void {
+  //   this.userService.getUser(0).then(user => {
+  //     this.currentUser = user
+  //   });
+  // }
 }

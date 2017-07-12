@@ -1,32 +1,69 @@
 import { Injectable } from '@angular/core';
-import { Headers, Http }  from '@angular/http';
-import {AngularFireDatabase, FirebaseListObservable, FirebaseObjectObservable} from 'angularfire2/database';
 
+import { AngularFireDatabase, FirebaseListObservable, FirebaseObjectObservable } from 'angularfire2/database';
+import { CodeService } from "./code.service";
 
 import 'rxjs/add/operator/toPromise';
 
 import { User } from '../app/user';
+import { Thenable } from "firebase/app";
 
 @Injectable()
 export class UserService {
 
-  private usersUrl = 'api/users';  // URL to web api
-  private headers = new Headers({'Content-Type': 'application/json'});
-
-  constructor(private http: Http,
-              private db: AngularFireDatabase) {}
+  constructor(private db: AngularFireDatabase,
+              private codeService: CodeService) {}
 
   /**
    * getUser function
    * @param id
    * @returns {Promise<User>}
    */
+
   getUser(id: number): FirebaseObjectObservable<User> {
-    return this.db.object('/users/${id}');
+    return this.db.object('/users/'+id);
   }
 
   getUsers(): FirebaseListObservable<any[]> {
     return this.db.list('/users');
+  }
+
+  /**
+   * Code send function, will check user's code
+   * @param codeString
+   * @returns {Promise<boolean>}
+   */
+  enterCode(codeString): Promise<boolean> {
+    return this.codeService.getCode(codeString)
+      .then((codeArray) => {
+        if (codeArray.length) {
+          console.log(codeArray[0].cost);
+          return true;
+        }
+        return false;
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }
+
+  /**
+   * Update user function
+   * @param id
+   * @param newObject
+   * @returns {firebase.Thenable<any>}
+   */
+  updateUser(id: number, newObject: User): Thenable<boolean> {
+    return this.getUser(id).update(newObject).then(() => {
+      return true;
+    }).catch((err) => {
+      console.error(err);
+      return false;
+    })
+  }
+
+  get currentUser():FirebaseObjectObservable<User> {
+    return this.getUser(0);
   }
 
   // update(hero: Hero): Promise<Hero> {
