@@ -6,8 +6,6 @@ import { UserService } from "../../services/user.service";
 import { CodeService } from "../../services/code.service";
 import { ToastService } from "../../services/toast.service";
 
-import { FirebaseObjectObservable, FirebaseListObservable } from 'angularfire2/database';
-
 import { User } from "../../app/user";
 
 @Component({
@@ -33,12 +31,14 @@ export class HomePage implements OnInit, OnDestroy{
   ngOnInit(): void {
     this.userService.currentUser.subscribe((userObject) => {
       this.currentUser = userObject;
-      this.timer = Observable.timer(0, 1000)
-        .subscribe((t) => {
-          let currentTimestamp = new Date().getTime();
-          this.timeDiff = this.currentUser.endTime - currentTimestamp;
-        });
     });
+    this.timer = Observable.timer(0, 1000)
+      .subscribe((t) => {
+        let currentTimestamp = new Date().getTime();
+        if (this.currentUser) {
+          this.timeDiff = this.currentUser.endTime - currentTimestamp;
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -47,11 +47,18 @@ export class HomePage implements OnInit, OnDestroy{
 
   checkCode(): void {
     if (this.codeString) {
-      this.userService.enterCode(this.codeString)
-        .then((result) => {
-          if (result) {
-            this.toastService.showToast('success-toast', 'success');
+      this.loading.present();
+      this.codeService.getCode(this.codeString)
+        .subscribe((result) => {
+          if (result.length) {
+            let codeObject = result[0].val();
+            this.userService.useCode(codeObject)
+              .then(() => {
+                this.loading.dismiss();
+                this.toastService.showToast('success-toast', 'success');
+              });
           } else {
+            this.loading.dismiss();
             this.toastService.showToast('error-toast', 'error');
           }
           this.codeString = '';

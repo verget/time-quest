@@ -5,7 +5,6 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 import { MomentModule } from 'angular2-moment';
 import { HttpModule }    from '@angular/http';
-import { InMemoryWebApiModule } from 'angular-in-memory-web-api';
 
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';

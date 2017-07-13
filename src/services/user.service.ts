@@ -1,18 +1,27 @@
 import { Injectable } from '@angular/core';
 
 import { AngularFireDatabase, FirebaseListObservable, FirebaseObjectObservable } from 'angularfire2/database';
-import { CodeService } from "./code.service";
+import { Thenable } from "firebase/app";
 
 import 'rxjs/add/operator/toPromise';
 
+import { CodeService } from "./code.service";
+
 import { User } from '../app/user';
-import { Thenable } from "firebase/app";
+import { Code } from '../app/code';
+
 
 @Injectable()
 export class UserService {
 
+  currentUserObject: User;
+
   constructor(private db: AngularFireDatabase,
-              private codeService: CodeService) {}
+              private codeService: CodeService) {
+    this.currentUser.subscribe((userObject) => {
+      this.currentUserObject = userObject;
+    })
+  }
 
   /**
    * getUser function
@@ -29,51 +38,29 @@ export class UserService {
   }
 
   /**
-   * Code send function, will check user's code
-   * @param codeString
-   * @returns {Promise<boolean>}
-   */
-  enterCode(codeString): Promise<boolean> {
-    return this.codeService.getCode(codeString)
-      .then((codeArray) => {
-        if (codeArray.length) {
-          console.log(codeArray[0].cost);
-          return true;
-        }
-        return false;
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }
-
-  /**
    * Update user function
    * @param id
    * @param newObject
    * @returns {firebase.Thenable<any>}
    */
   updateUser(id: number, newObject: User): Thenable<boolean> {
-    return this.getUser(id).update(newObject).then(() => {
-      return true;
-    }).catch((err) => {
-      console.error(err);
-      return false;
-    })
+    return this.getUser(id).update(newObject)
+      .then(() => Promise.resolve())
+      .catch(this.handlerError);
+  }
+
+  useCode(codeObject: Code): Thenable<boolean> {
+    console.log(codeObject);
+    console.log(this.currentUserObject);
+    this.currentUserObject.endTime =+ codeObject.cost;
+    console.log(this.currentUserObject);
+    this.currentUserObject.usedCodes.push(codeObject.id);
+    return this.updateUser(this.currentUserObject.id,  this.currentUserObject);
   }
 
   get currentUser():FirebaseObjectObservable<User> {
     return this.getUser(0);
   }
-
-  // update(hero: Hero): Promise<Hero> {
-  //   const url = `${this.heroesUrl}/${hero.id}`;
-  //   return this.http
-  //     .put(url, JSON.stringify(hero), {headers: this.headers})
-  //     .toPromise()
-  //     .then(() => hero)
-  //     .catch(this.handlerError);
-  // }
 
   private handlerError(error: any): Promise<any> {
     console.error('An error occured', error); // for demo purposes only

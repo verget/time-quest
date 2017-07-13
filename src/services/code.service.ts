@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
+import {Observable} from 'rxjs/Rx';
 import { AngularFireDatabase, FirebaseListObservable, FirebaseObjectObservable } from 'angularfire2/database';
 import 'rxjs/add/operator/toPromise';
+import 'rxjs/add/operator/take'
 
 import { Code } from '../app/code';
 
@@ -13,14 +15,14 @@ export class CodeService {
    * @param id
    * @returns {Promise<any>}
    */
-  getCode(string: string): any {
+  getCode(string: string): Observable<any> {
     return this.db.list('/codes', {
       query : {
-        equalTo: {
-          value: string, key: string
-        }
-      }
-    }).toPromise();
+        orderByChild: 'string',
+        equalTo: string
+      },
+      preserveSnapshot: true
+    }).take(1);
   }
 
   private handlerError(error: any): Promise<any> {
