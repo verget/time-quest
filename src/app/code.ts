@@ -1,5 +1,5 @@
 export class Code {
-  id: number;
+  $key: string;
   string: string;
   cost: number;
 }

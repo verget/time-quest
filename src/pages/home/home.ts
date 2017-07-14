@@ -47,21 +47,21 @@ export class HomePage implements OnInit, OnDestroy{
 
   checkCode(): void {
     if (this.codeString) {
-      this.loading.present();
-      this.codeService.getCode(this.codeString)
+      // this.loading.present();
+
+      this.userService.useCode(this.codeString) //todo need validation
         .subscribe((result) => {
-          if (result.length) {
-            let codeObject = result[0].val();
-            this.userService.useCode(codeObject)
-              .then(() => {
-                this.loading.dismiss();
-                this.toastService.showToast('success-toast', 'success');
-              });
-          } else {
-            this.loading.dismiss();
-            this.toastService.showToast('error-toast', 'error');
-          }
+          // this.loading.dismiss();
           this.codeString = '';
+          if (result.success) {
+            this.toastService.showToast('success-toast', 'success'); //todo need error texts
+          } else if (result.errorCode == 1001) { //todo need errorCodes list
+            this.toastService.showToast('warning-toast', 'already used');
+          } else if (result.errorCode == 1004) {
+            this.toastService.showToast('error-toast', 'wrong code');
+          } else {
+            this.toastService.showToast('error-toast', 'undefind error');
+          }
         });
     }
   }

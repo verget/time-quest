@@ -1,6 +1,6 @@
 export class User {
-  id: number;
+  $key: string;
   name: string;
   endTime: number;
-  usedCodes: Array<number>;
+  usedCodes: Object;
 }

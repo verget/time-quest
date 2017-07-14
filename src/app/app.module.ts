@@ -9,7 +9,7 @@ import { HttpModule }    from '@angular/http';
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
 import { AngularFireAuthModule } from 'angularfire2/auth';
-import { environment } from '../environments/environment';
+import { config } from '../environments/environment';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
@@ -33,7 +33,7 @@ import { TimerPipe } from './timer.pipe';
     IonicModule.forRoot(MyApp),
     MomentModule,
     HttpModule,
-    AngularFireModule.initializeApp(environment.firebase),
+    AngularFireModule.initializeApp(config.firebase),
     AngularFireDatabaseModule, // imports firebase/database, only needed for database features
     AngularFireAuthModule, // imports firebase/auth, only needed for auth features
   ],
