@@ -1,5 +1,8 @@
 <ion-header>
   <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
     <ion-title>
       Time Quest
     </ion-title>
@@ -34,8 +37,4 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-  
-  <li *ngFor="let user of users | async">
-    {{user.name}}
-  </li>
 </ion-content>

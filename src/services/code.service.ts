@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import {Observable} from 'rxjs/Rx';
-import { AngularFireDatabase } from 'angularfire2/database';
+import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
+
+import { Code } from '../app/code';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/take'
 
@@ -21,6 +23,10 @@ export class CodeService {
       },
       preserveSnapshot: true
     }).take(1);
+  }
+
+  getCodeListObservable(): FirebaseListObservable<[Code]> {
+    return this.db.list('codes');
   }
 
   private handlerError(error: any): Promise<any> {

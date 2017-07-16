@@ -1,12 +1,42 @@
 <ion-header>
   <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
     <ion-title>
-      Ionic Blank
+      Admin Page
     </ion-title>
   </ion-navbar>
+
+  <ion-toolbar no-border-top>
+    <ion-segment [(ngModel)]="segment">
+      <ion-segment-button value="codes">
+        Codes
+      </ion-segment-button>
+      <ion-segment-button value="users">
+        Users
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content padding>
+  <div [ngSwitch]="segment">
+    <ion-list *ngSwitchCase="'codes'">
+      <ion-item *ngFor="let code of codeList | async">
+        <h2 (click)="codeStringChange = true" *ngIf="!codeStringChange">{{code.string}}</h2>
+        <ion-input *ngIf="codeStringChange" type="text"></ion-input>
+        <ion-note item-end class="note">
+          {{code.cost}}
+        </ion-note>
+      </ion-item>
+    </ion-list>
 
+    <ion-list *ngSwitchCase="'users'">
+      <ion-item *ngFor="let user of userList | async">
+        <h2>{{user.name}}</h2>
+      </ion-item>
+    </ion-list>
+  </div>
 
 </ion-content>

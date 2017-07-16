@@ -36,7 +36,11 @@ export class UserService {
     return this.db.object('/users/'+$key);
   }
 
-  getUsers(): FirebaseListObservable<any[]> {
+  /**
+   *
+   * @returns {FirebaseListObservable<any[]>}
+   */
+  getUserListObservable(): FirebaseListObservable<[User]> {
     return this.db.list('/users');
   }
 
@@ -53,6 +57,11 @@ export class UserService {
       .catch(this.handlerError);
   }
 
+  /**
+   *
+   * @param codeString
+   * @returns {Observable<R>}
+   */
   useCode(codeString: string): Observable<HttpResponse> {
     console.log(codeString);
     return this.http
