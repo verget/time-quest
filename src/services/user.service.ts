@@ -7,10 +7,8 @@ import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/map';
 
 import { Observable } from "rxjs/Observable";
-import { CodeService } from "./code.service";
 
 import { User } from '../app/user';
-import { Code } from '../app/code';
 import { HttpResponse } from '../app/http-response';
 
 import { config } from '../environments/environment';
@@ -21,7 +19,6 @@ export class UserService {
   currentUserObject: User;
 
   constructor(private db: AngularFireDatabase,
-              private codeService: CodeService,
               private http: Http) {
     this.currentUser.subscribe((userObject) => {
       console.log(userObject);

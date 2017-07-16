@@ -3,7 +3,6 @@ import { ErrorHandler, NgModule } from '@angular/core';
 import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
-import { MomentModule } from 'angular2-moment';
 import { HttpModule }    from '@angular/http';
 
 import { AngularFireModule } from 'angularfire2';
@@ -31,7 +30,6 @@ import { TimerPipe } from './timer.pipe';
   imports: [
     BrowserModule,
     IonicModule.forRoot(MyApp),
-    MomentModule,
     HttpModule,
     AngularFireModule.initializeApp(config.firebase),
     AngularFireDatabaseModule, // imports firebase/database, only needed for database features

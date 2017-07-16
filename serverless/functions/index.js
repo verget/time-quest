@@ -6,7 +6,6 @@ const admin = require('firebase-admin');
 const cors = require('cors')({origin: true});
 admin.initializeApp(functions.config().firebase);
 
-
 /**
  * Cors middlewire
  * @param req
@@ -48,7 +47,7 @@ exports.addCode = functions.https.onRequest((req, res) => {
 exports.useCode = functions.https.onRequest((req, res) => applyCors(req, res, () => {
   //эта функция должна принимать ключ кода и юзера, проверять что код раньше не использовался
   // получать стоимость кода, добавлять ее юзеру к финишу и заносить код в использованные для юзера
-  
+
   const codeString = req.body.codeString;
   const userKey = req.body.userKey;
   return admin.database().ref('codes').orderByChild("string").equalTo(codeString).once('value')
@@ -72,9 +71,9 @@ exports.useCode = functions.https.onRequest((req, res) => applyCors(req, res, ()
               error: 'Code already used'
             })
           }
-          userObject.endTime += codeObject.cost;
+          userObject.endTime += codeObject[codeKey].cost;
           userObject.usedCodes[codeKey] = 'true';
-          return userRef.update(userObject)
+          return admin.database().ref('/users/'+userKey).update(userObject)
         })
         .then(() => {
           return res.send({
@@ -83,6 +82,7 @@ exports.useCode = functions.https.onRequest((req, res) => applyCors(req, res, ()
         });
     })
     .catch((err) => {
+      console.error(err);
       return res.send({
         success: false,
         errorCode: 1000,
@@ -90,17 +90,3 @@ exports.useCode = functions.https.onRequest((req, res) => applyCors(req, res, ()
       })
     })
 }));
-
-// Listens for new messages added to /messages/:pushId/original and creates an
-// uppercase version of the message to /messages/:pushId/uppercase
-exports.makeUppercase = functions.database.ref('/messages/{pushId}/original') //todo delete example
-  .onWrite(event => {
-    // Grab the current value of what was written to the Realtime Database.
-    const original = event.data.val();
-    console.log('Uppercasing', event.params.pushId, original);
-    const uppercase = original.toUpperCase();
-    // You must return a Promise when performing asynchronous tasks inside a Functions such as
-    // writing to the Firebase Realtime Database.
-    // Setting an "uppercase" sibling in the Realtime Database returns a Promise.
-    return event.data.ref.parent.child('uppercase').set(uppercase);
-  });

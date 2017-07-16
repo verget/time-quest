@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
 import {Observable} from 'rxjs/Rx';
-import { AngularFireDatabase, FirebaseListObservable, FirebaseObjectObservable } from 'angularfire2/database';
+import { AngularFireDatabase } from 'angularfire2/database';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/take'
-
-import { Code } from '../app/code';
 
 @Injectable()
 export class CodeService {

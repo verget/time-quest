@@ -1,9 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { NavController } from 'ionic-angular';
 import { LoadingController } from 'ionic-angular';
 import { Observable, Subscription } from 'rxjs/Rx';
 import { UserService } from "../../services/user.service";
-import { CodeService } from "../../services/code.service";
 import { ToastService } from "../../services/toast.service";
 
 import { User } from "../../app/user";
@@ -15,16 +13,11 @@ import { User } from "../../app/user";
 export class HomePage implements OnInit, OnDestroy{
   timer: Subscription;
   timeDiff: number = 0;
-  loading: any = this.loadingCtrl.create({
-    content: 'Please wait...'
-  });
   codeString: string;
   currentUser: User;
 
-  constructor(private navCtrl: NavController,
-              private toastService: ToastService,
+  constructor(private toastService: ToastService,
               private userService: UserService,
-              private codeService: CodeService,
               private loadingCtrl: LoadingController) {
   }
 
@@ -47,11 +40,13 @@ export class HomePage implements OnInit, OnDestroy{
 
   checkCode(): void {
     if (this.codeString) {
-      // this.loading.present();
-
+      const loading = this.loadingCtrl.create({
+        content: 'Please wait...'
+      });
+      loading.present();
       this.userService.useCode(this.codeString) //todo need validation
         .subscribe((result) => {
-          // this.loading.dismiss();
+          loading.dismiss();
           this.codeString = '';
           if (result.success) {
             this.toastService.showToast('success-toast', 'success'); //todo need error texts
