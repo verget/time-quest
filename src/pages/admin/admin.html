@@ -24,11 +24,14 @@
   <div [ngSwitch]="segment">
     <ion-list *ngSwitchCase="'codes'">
       <ion-item *ngFor="let code of codeList | async">
-        <h2 (click)="codeStringChange = true" *ngIf="!codeStringChange">{{code.string}}</h2>
-        <ion-input *ngIf="codeStringChange" type="text"></ion-input>
+        <h2>{{code.string}}</h2>
         <ion-note item-end class="note">
           {{code.cost}}
         </ion-note>
+        <button ion-button icon-end round item-end>
+          Edit
+          <ion-icon name="create"></ion-icon>
+        </button>
       </ion-item>
     </ion-list>
 
