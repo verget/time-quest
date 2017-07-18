@@ -8,21 +8,26 @@ import { HttpModule }    from '@angular/http';
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
 import { AngularFireAuthModule } from 'angularfire2/auth';
+
 import { config } from '../environments/environment';
 
 import { MyApp } from './app.component';
+import { LoginPage } from '../pages/login/login';
 import { HomePage } from '../pages/home/home';
 import { AdminPage } from "../pages/admin/admin";
 
 import { UserService } from '../services/user.service';
 import { CodeService } from '../services/code.service';
 import { ToastService } from "../services/toast.service";
+import { AuthService } from '../services/auth.service';
 
 import { TimerPipe } from './timer.pipe';
+
 
 @NgModule({
   declarations: [
     MyApp,
+    LoginPage,
     HomePage,
     AdminPage,
     TimerPipe
@@ -32,13 +37,14 @@ import { TimerPipe } from './timer.pipe';
     IonicModule.forRoot(MyApp),
     HttpModule,
     AngularFireModule.initializeApp(config.firebase),
-    AngularFireDatabaseModule, // imports firebase/database, only needed for database features
-    AngularFireAuthModule, // imports firebase/auth, only needed for auth features
+    AngularFireDatabaseModule,
+    AngularFireAuthModule,
   ],
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
     HomePage,
+    LoginPage,
     AdminPage
   ],
   providers: [
@@ -47,6 +53,7 @@ import { TimerPipe } from './timer.pipe';
     UserService,
     CodeService,
     ToastService,
+    AuthService,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })

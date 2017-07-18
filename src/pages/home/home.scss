@@ -2,6 +2,14 @@ page-home {
   .timer {
     font-size: 80px;
   }
+  .no-padding {
+    padding: 0;
+  }
+  @media(max-width:425px){
+    .timer {
+      font-size: 55px;
+    }
+  }
 }
 
 

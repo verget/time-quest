@@ -15,7 +15,8 @@ export class ToastService {
       message: message,
       cssClass: type,
       duration: 3000,
-      position: 'top'
+      position: 'top',
+      dismissOnPageChange: true
     });
     toast.present();
   }

@@ -15,6 +15,7 @@ export class HomePage implements OnInit, OnDestroy{
   timeDiff: number = 0;
   codeString: string;
   currentUser: User;
+  loading: any;
 
   constructor(private toastService: ToastService,
               private userService: UserService,
@@ -40,13 +41,10 @@ export class HomePage implements OnInit, OnDestroy{
 
   checkCode(): void {
     if (this.codeString) {
-      const loading = this.loadingCtrl.create({
-        content: 'Please wait...'
-      });
-      loading.present();
+      this.showLoader();
       this.userService.useCode(this.codeString) //todo need validation
         .subscribe((result) => {
-          loading.dismiss();
+          this.loading.dismiss();
           this.codeString = '';
           if (result.success) {
             this.toastService.showToast('success-toast', 'success'); //todo need error texts
@@ -59,5 +57,13 @@ export class HomePage implements OnInit, OnDestroy{
           }
         });
     }
+  }
+
+  showLoader(){
+    this.loading = this.loadingCtrl.create({
+      content: 'Please wait...'
+    });
+
+    this.loading.present();
   }
 }

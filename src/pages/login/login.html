@@ -1,0 +1,41 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>
+      Auth with Ionic 3
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  
+  <ion-grid>
+    <ion-row>
+      <ion-col col-1 col-md-3 col-lg-4></ion-col>
+      <ion-col col-10 col-md-6 col-lg-4 text-center>
+        <h1>Hello {{displayName}}</h1>
+        <ion-list>
+          <ion-item>
+            <ion-label floating>Email</ion-label>
+            <ion-input type="email"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label floating>Password</ion-label>
+            <ion-input type="password"></ion-input>
+          </ion-item>
+        </ion-list>
+        <div padding>
+          <button ion-button color="primary" block color="secondary" outline>Sign In</button>
+          <button ion-button icon-start block outline (click)="signInWithFacebook()">
+            <ion-icon name="logo-facebook"></ion-icon>
+            Sign In with Facebook
+          </button>
+          <button ion-button color="danger" icon-start outline block (click)="signInWithGoogle()">
+            <ion-icon name="logo-google"></ion-icon>
+            Sign In with Google
+          </button>
+          <button ion-button (click)="signOut()" block>Logout</button>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

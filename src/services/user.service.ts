@@ -37,7 +37,7 @@ export class UserService {
   }
 
   /**
-   *
+   * Retun user list observable
    * @returns {FirebaseListObservable<any[]>}
    */
   getUserListObservable(): FirebaseListObservable<[User]> {
@@ -45,25 +45,12 @@ export class UserService {
   }
 
   /**
-   * Update user function
-   * @param $key
-   * @param newObject
-   * @returns {firebase.Thenable<any>}
-   */
-  updateUser($key: string, newObject: User): Thenable<boolean> {
-    console.log(newObject);
-    return this.getUser($key).update(newObject)
-      .then(() => Promise.resolve())
-      .catch(this.handlerError);
-  }
-
-  /**
-   *
+   * Code use function, after execute will add codes cost to current users endTime and
+   * save codes key to current users used list
    * @param codeString
    * @returns {Observable<R>}
    */
   useCode(codeString: string): Observable<HttpResponse> {
-    console.log(codeString);
     return this.http
       .post(config.apiUrl + '/useCode', {
         codeString: codeString,
@@ -72,8 +59,12 @@ export class UserService {
       .map(res => res.json());
   }
 
+  /**
+   * Return current user observable
+   * @returns {FirebaseObjectObservable<User>}
+   */
   get currentUser():FirebaseObjectObservable<User> {
-    return this.getUser('-Kp-5ifqN1-ooUeQaf9t');
+    return this.getUser('-Kp-5ifqN1-ooUeQaf9t'); //todo use local storage
   }
 
   private handlerError(error: any): Promise<any> {

@@ -1,6 +1,5 @@
-// The Cloud Functions for Firebase SDK to create Cloud Functions and setup triggers.
+
 const functions = require('firebase-functions');
-// The Firebase Admin SDK to access the Firebase Realtime Database.
 const admin = require('firebase-admin');
 
 const cors = require('cors')({origin: true});
@@ -21,33 +20,14 @@ function applyCors(req, res, fn) {
   })
 }
 
-// Take the text parameter passed to this HTTP endpoint and insert it into the
-// Realtime Database under the path /messages/:pushId/original
-
-exports.addUser = functions.https.onRequest((req, res) => {
-   // Grab the text parameter.
-  const name = req.query.name;
-  // Push the new message into the Realtime Database using the Firebase Admin SDK.
-  admin.database().ref('/users').push({name: name}).then(snapshot => {
-    // Redirect with 303 SEE OTHER to the URL of the pushed object in the Firebase console.
-    res.redirect(303, snapshot.ref);
-  });
-});
-
-exports.addCode = functions.https.onRequest((req, res) => {
-  // Grab the text parameter.
-  const string = req.query.string;
-  // Push the new message into the Realtime Database using the Firebase Admin SDK.
-  admin.database().ref('/codes').push({string: string}).then(snapshot => {
-    // Redirect with 303 SEE OTHER to the URL of the pushed object in the Firebase console.
-    res.redirect(303, snapshot.ref);
-  });
-});
-
+/**
+ * Use entered code for current user, if success will add code cost to users endTime and
+ * save it in users used codes
+ * @param codeString
+ * @param userKey
+ * @type {HttpsFunction}
+ */
 exports.useCode = functions.https.onRequest((req, res) => applyCors(req, res, () => {
-  //эта функция должна принимать ключ кода и юзера, проверять что код раньше не использовался
-  // получать стоимость кода, добавлять ее юзеру к финишу и заносить код в использованные для юзера
-
   const codeString = req.body.codeString;
   const userKey = req.body.userKey;
   return admin.database().ref('codes').orderByChild("string").equalTo(codeString).once('value')
@@ -90,3 +70,78 @@ exports.useCode = functions.https.onRequest((req, res) => applyCors(req, res, ()
       })
     })
 }));
+
+/**
+ * Create code function
+ * @param codeString
+ * @param codeCost
+ * @type {HttpsFunction}
+ */
+exports.createCode = functions.https.onRequest((req, res) => applyCors(req, res, () => {
+  const codeString = req.body.codeString;
+  const codeCost = req.body.codeCost;
+  return admin.database().ref('/codes/')
+    .push({string: codeString, cost: codeCost})
+    .then(() => {
+      return res.send({
+        success: true
+      })
+    })
+    .catch((err) => {
+      return res.send({
+        success: false,
+        error: err,
+        errorCode: 1000
+      })
+    })
+}));
+
+/**
+ * Change code function
+ * @param codeString
+ * @param codeCost
+ * @param codeKey
+ * @type {HttpsFunction}
+ */
+exports.changeCode = functions.https.onRequest((req, res) => applyCors(req, res, () => {
+  const codeString = req.body.codeString;
+  const codeCost = req.body.codeCost;
+  const codeKey = req.body.codeKey;
+  return admin.database().ref('/codes/'+codeKey)
+    .update({string: codeString, cost: codeCost})
+    .then(() => {
+      return res.send({
+        success: true
+      })
+    })
+    .catch((err) => {
+      return res.send({
+        success: false,
+        error: err,
+        errorCode: 1000
+      })
+    })
+}));
+
+/**
+ *
+ * @type {HttpsFunction}
+ */
+exports.deleteCode = functions.https.onRequest((req, res) => applyCors(req, res, () => {
+  const codeKey = req.query.key;
+  return admin.database().ref('/codes/'+codeKey)
+    .remove()
+    .then(() => {
+      return res.send({
+        success: true
+      })
+    })
+    .catch((err) => {
+      return res.send({
+        success: false,
+        error: err,
+        errorCode: 1000
+      })
+    })
+}));
+

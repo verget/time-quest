@@ -28,9 +28,13 @@
         <ion-note item-end class="note">
           {{code.cost}}
         </ion-note>
-        <button ion-button icon-end round item-end>
+        <button ion-button icon-end round item-end (click)="editCodePrompt(code)">
           Edit
           <ion-icon name="create"></ion-icon>
+        </button>
+        
+        <button ion-button icon-end item-end color="danger" clear (click)="deleteCode(code.$key)">
+          <ion-icon name="trash"></ion-icon>
         </button>
       </ion-item>
     </ion-list>
@@ -41,5 +45,10 @@
       </ion-item>
     </ion-list>
   </div>
-
+  
+  <ion-fab right bottom>
+    <button ion-fab color="secondary" (click)="createCodePrompt()">
+      <ion-icon name="add"></ion-icon>
+    </button>
+  </ion-fab>
 </ion-content>

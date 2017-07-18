@@ -12,20 +12,18 @@
 <ion-content padding>
   <ion-grid>
     <ion-row>
-      <ion-col col-2></ion-col>
-      <ion-col col-8 text-center>
+      <ion-col col-1></ion-col>
+      <ion-col col-10 text-center>
         <div class="timer">{{timeDiff | timer}}</div>
       </ion-col>
     </ion-row>
     <ion-row>
       <ion-col col-2></ion-col>
       <ion-col col-8>
-        <ion-list>
-          <ion-item>
-            <ion-label floating>Код</ion-label>
-            <ion-input type="text"[(ngModel)]="codeString"></ion-input>
-          </ion-item>
-        </ion-list>
+        <ion-item class="no-padding">
+          <ion-label floating>Код</ion-label>
+          <ion-input type="text"[(ngModel)]="codeString"></ion-input>
+        </ion-item>
       </ion-col>
     </ion-row>
     <ion-row>
