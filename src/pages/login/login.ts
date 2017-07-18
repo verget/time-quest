@@ -13,8 +13,8 @@ export class LoginPage {
 
   displayName: any;
   loading: any;
-  loginData = { username:'', password:'' };
-  provider: any;
+  userEmail: string;
+  userPassword: string;
 
   constructor(public navCtrl: NavController,
               private afAuth: AngularFireAuth,
@@ -30,25 +30,36 @@ export class LoginPage {
     });
   }
 
-  signIn(provider) {
+  signUp() {
+    console.log(this.userEmail);
+    console.log(this.userPassword);
+    return this.afAuth.auth.createUserWithEmailAndPassword(this.userEmail, this.userPassword)
+      .then((res) => {
+      console.log(res);
+    })
+  }
+
+  providerSignIn(provider) {
     return this.afAuth.auth
       .signInWithPopup(provider)
       .then(res => {
         console.log(res);
         let credential = res.credential;
         let user = res.user;
-
+        this.loading.dismiss();
       });
   }
 
   signInWithFacebook() {
+    this.showLoader();
     let provider = new firebase.auth.FacebookAuthProvider();
-    return this.signIn(provider);
+    return this.providerSignIn(provider);
   }
 
   signInWithGoogle() {
+    this.showLoader();
     let provider = new firebase.auth.GoogleAuthProvider();
-    return this.signIn(provider);
+    return this.providerSignIn(provider);
   }
 
   signOut() {

@@ -7,24 +7,29 @@
 </ion-header>
 
 <ion-content padding>
-  
+
   <ion-grid>
     <ion-row>
       <ion-col col-1 col-md-3 col-lg-4></ion-col>
       <ion-col col-10 col-md-6 col-lg-4 text-center>
         <h1>Hello {{displayName}}</h1>
-        <ion-list>
+        <ion-list no-lines>
           <ion-item>
             <ion-label floating>Email</ion-label>
-            <ion-input type="email"></ion-input>
+            <ion-input type="email" [(ngModel)]="userEmail"></ion-input>
           </ion-item>
           <ion-item>
             <ion-label floating>Password</ion-label>
-            <ion-input type="password"></ion-input>
+            <ion-input type="password" [(ngModel)]="userPassword"></ion-input>
           </ion-item>
         </ion-list>
         <div padding>
-          <button ion-button color="primary" block color="secondary" outline>Sign In</button>
+          <button ion-button block outline
+                  color="secondary"
+                  [disabled]="!userEmail || !userPassword"
+                  (click)="signUp()">
+            Sign Up
+          </button>
           <button ion-button icon-start block outline (click)="signInWithFacebook()">
             <ion-icon name="logo-facebook"></ion-icon>
             Sign In with Facebook
