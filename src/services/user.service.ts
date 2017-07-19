@@ -36,6 +36,16 @@ export class UserService {
     return this.db.object('/users/'+$key);
   }
 
+  createUser(userObject: any): Observable<HttpResponse> {
+    return this.http
+      .put(config.apiUrl + '/createUser', {
+        name: userObject.name,
+        $key: userObject.$key,
+        email: userObject.email
+      })
+      .map(res => res.json());
+  }
+
   /**
    * Retun user list observable
    * @returns {FirebaseListObservable<any[]>}

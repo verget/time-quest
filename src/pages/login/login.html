@@ -7,26 +7,82 @@
 </ion-header>
 
 <ion-content padding>
-
+  
+  <div padding>
+    <ion-segment [(ngModel)]="segment">
+      <ion-segment-button value="signIn">
+        Log In
+      </ion-segment-button>
+      <ion-segment-button value="signUp">
+        Register
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+  
   <ion-grid>
     <ion-row>
       <ion-col col-1 col-md-3 col-lg-4></ion-col>
       <ion-col col-10 col-md-6 col-lg-4 text-center>
-        <h1>Hello {{displayName}}</h1>
-        <ion-list no-lines>
-          <ion-item>
-            <ion-label floating>Email</ion-label>
-            <ion-input type="email" [(ngModel)]="userEmail"></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-label floating>Password</ion-label>
-            <ion-input type="password" [(ngModel)]="userPassword"></ion-input>
-          </ion-item>
-        </ion-list>
+        <div [ngSwitch]="segment">
+          <ion-list *ngSwitchCase="'signIn'">
+            <h3>SIGN IN</h3>
+            <form [formGroup]="signInForm">
+              <ion-item>
+                <ion-label floating>Email</ion-label>
+                <ion-input type="email" formControlName="email" [(ngModel)]="userSignInEmail"></ion-input>
+              </ion-item>
+              <span *ngIf="!signInForm.controls.email.valid  && signInForm.controls.email.dirty">
+                <p>Please enter a valid email.</p>
+              </span>
+              <ion-item>
+                <ion-label floating>Password</ion-label>
+                <ion-input type="password" formControlName="password" [(ngModel)]="userSignInPassword"></ion-input>
+              </ion-item>
+              <span *ngIf="!signInForm.controls.password.valid && signInForm.controls.password.dirty">
+                <p>Please enter a valid password, it should be more then 6 symbols.</p>
+              </span>
+            </form>
+          </ion-list>
+  
+          <ion-list *ngSwitchCase="'signUp'">
+            <h3>CREATE ACCOUNT</h3>
+            <form [formGroup]="signUpForm">
+              <ion-item>
+                <ion-label floating>Nickname</ion-label>
+                <ion-input type="text" formControlName="nickname" [(ngModel)]="userSignUpNickname"></ion-input>
+              </ion-item>
+              <span *ngIf="!signUpForm.controls.nickname.valid && signUpForm.controls.nickname.dirty">
+                <p>Please enter a valid nickname.</p>
+              </span>
+              <ion-item>
+                <ion-label floating>Email</ion-label>
+                <ion-input type="email" formControlName="email" [(ngModel)]="userSignUpEmail"></ion-input>
+              </ion-item>
+              <span *ngIf="!signUpForm.controls.email.valid && signUpForm.controls.email.dirty">
+                <p>Please enter a valid email.</p>
+              </span>
+              <ion-item>
+                <ion-label floating>Password</ion-label>
+                <ion-input type="password" formControlName="password" [(ngModel)]="userSignUpPassword"></ion-input>
+              </ion-item>
+              <span *ngIf="!signUpForm.controls.password.valid && signUpForm.controls.password.dirty">
+                <p>Please enter a valid password.</p>
+              </span>
+            </form>
+          </ion-list>
+        </div>
         <div padding>
           <button ion-button block outline
                   color="secondary"
-                  [disabled]="!userEmail || !userPassword"
+                  [hidden]="segment != 'signIn'"
+                  [disabled]="!signInForm.valid"
+                  (click)="signIn()">
+            Sign In
+          </button>
+          <button ion-button block outline
+                  color="secondary"
+                  [hidden]="segment != 'signUp'"
+                  [disabled]="!signUpForm.valid"
                   (click)="signUp()">
             Sign Up
           </button>
@@ -38,7 +94,6 @@
             <ion-icon name="logo-google"></ion-icon>
             Sign In with Google
           </button>
-          <button ion-button (click)="signOut()" block>Logout</button>
         </div>
       </ion-col>
     </ion-row>

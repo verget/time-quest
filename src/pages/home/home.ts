@@ -1,10 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { LoadingController } from 'ionic-angular';
+import { NavController, LoadingController } from 'ionic-angular';
 import { Observable, Subscription } from 'rxjs/Rx';
+import { AngularFireAuth } from 'angularfire2/auth';
+
 import { UserService } from "../../services/user.service";
 import { ToastService } from "../../services/toast.service";
-
 import { User } from "../../app/user";
+import { LoginPage } from '../login/login';
 
 @Component({
   selector: 'page-home',
@@ -17,9 +19,18 @@ export class HomePage implements OnInit, OnDestroy{
   currentUser: User;
   loading: any;
 
-  constructor(private toastService: ToastService,
+  constructor(private afAuth: AngularFireAuth,
+              private toastService: ToastService,
               private userService: UserService,
-              private loadingCtrl: LoadingController) {
+              private loadingCtrl: LoadingController,
+              public navCtrl: NavController) {
+
+    afAuth.authState.subscribe(user => {
+      if (user) {
+        return;
+      }
+      this.navCtrl.push(LoginPage);
+    });
   }
 
   ngOnInit(): void {
@@ -58,6 +69,10 @@ export class HomePage implements OnInit, OnDestroy{
         });
     }
   }
+
+  logout() {
+    return this.afAuth.auth.signOut();
+  };
 
   showLoader(){
     this.loading = this.loadingCtrl.create({

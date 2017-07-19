@@ -96,6 +96,24 @@ exports.createCode = functions.https.onRequest((req, res) => applyCors(req, res,
     })
 }));
 
+exports.createUser = functions.https.onRequest((req, res) => applyCors(req, res, () => {
+  const endTime = new Date().getTime() + 30 * 60000;
+  return admin.database().ref('/users/'+req.body.$key)
+    .set({name: req.body.name, email: req.body.email, endTime: endTime})
+    .then(() => {
+      return res.send({
+        success: true
+      })
+    })
+    .catch((err) => {
+      return res.send({
+        success: false,
+        error: err,
+        errorCode: 1000
+      })
+    })
+}));
+
 /**
  * Change code function
  * @param codeString

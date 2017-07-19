@@ -23,3 +23,6 @@
 .warning-toast .toast-container{
   background: color($colors, primary);
 }
+.list-md .item-input:last-child {
+  border-bottom: 0;
+}

@@ -19,7 +19,6 @@ import { AdminPage } from "../pages/admin/admin";
 import { UserService } from '../services/user.service';
 import { CodeService } from '../services/code.service';
 import { ToastService } from "../services/toast.service";
-import { AuthService } from '../services/auth.service';
 
 import { TimerPipe } from './timer.pipe';
 
@@ -53,7 +52,6 @@ import { TimerPipe } from './timer.pipe';
     UserService,
     CodeService,
     ToastService,
-    AuthService,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })
