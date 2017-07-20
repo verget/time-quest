@@ -6,6 +6,8 @@
 
 'use strict';
 importScripts('./build/sw-toolbox.js');
+importScripts('https://www.gstatic.com/firebasejs/3.9.0/firebase-app.js');
+importScripts('https://www.gstatic.com/firebasejs/3.9.0/firebase-messaging.js');
 
 self.toolbox.options.cache = {
   name: 'ionic-cache'
@@ -28,3 +30,15 @@ self.toolbox.router.any('/*', self.toolbox.cacheFirst);
 // for any other requests go to the network, cache,
 // and then only use that cached resource if your user goes offline
 self.toolbox.router.default = self.toolbox.networkFirst;
+
+
+// Initialize the Firebase app in the service worker by passing in the
+// messagingSenderId.
+firebase.initializeApp({
+  'messagingSenderId': '482562567173'
+});
+
+// Retrieve an instance of Firebase Messaging so that it can handle background
+// messages.
+const messaging = firebase.messaging();
+

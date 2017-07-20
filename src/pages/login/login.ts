@@ -31,6 +31,7 @@ export class LoginPage {
               public formBuilder: FormBuilder) {
 
     afAuth.authState.subscribe(user => {
+      console.log(user);
       if (!user) {
         return;
       }
@@ -78,7 +79,14 @@ export class LoginPage {
     if(this.signInForm.valid) {
       return this.afAuth.auth.signInWithEmailAndPassword(this.userSignInEmail, this.userSignInPassword)
         .then((res) => {
-          console.log(res);
+          let tempUser = {
+            uid: res.uid,
+            name: res.displayName,
+            email: res.email,
+            endTime: 0,
+            usedCodes: {}
+          };
+          this.userService.setCurrentUser(tempUser);
         })
         .catch((err) => {
           this.toastService.showToast('error-toast', err.message);
@@ -99,19 +107,6 @@ export class LoginPage {
         this.loading.dismiss();
       });
   }
-
-  // firebase.auth().getRedirectResult()
-  //   .then(function(result) {
-  //     if (result.credential) {
-  //       // Accounts successfully linked.
-  //       var credential = result.credential;
-  //       var user = result.user;
-  //       // ...
-  //     }
-  //   }).catch(function(error) {
-  //     // Handle Errors here.
-  //     // ...
-  //   });
 
   signInWithFacebook() {
     this.showLoader();

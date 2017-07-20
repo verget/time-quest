@@ -1,7 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Injectable, Inject } from '@angular/core';
 import { NavController, LoadingController } from 'ionic-angular';
 import { Observable, Subscription } from 'rxjs/Rx';
 import { AngularFireAuth } from 'angularfire2/auth';
+import * as firebase from 'firebase';
+import { FirebaseApp } from "angularfire2";
 
 import { UserService } from "../../services/user.service";
 import { ToastService } from "../../services/toast.service";
@@ -12,38 +14,64 @@ import { LoginPage } from '../login/login';
   selector: 'page-home',
   templateUrl: 'home.html'
 })
+
+@Injectable()
 export class HomePage implements OnInit, OnDestroy{
   timer: Subscription;
   timeDiff: number = 0;
   codeString: string;
   currentUser: User;
   loading: any;
+  _messaging: firebase.messaging.Messaging;
 
   constructor(private afAuth: AngularFireAuth,
               private toastService: ToastService,
               private userService: UserService,
               private loadingCtrl: LoadingController,
+              @Inject(FirebaseApp) private _firebaseApp: firebase.app.App,
               public navCtrl: NavController) {
 
-    // afAuth.authState.subscribe(user => {
-    //   if (user) {
-    //     console.log('user subscribe in home', user);
-    //     this.currentUser = user;
-    //     return;
-    //   }
-    //   this.navCtrl.push(LoginPage);
-    // });
-    console.log('im page constructor');
-  }
+    afAuth.authState.subscribe(user => {
+      if (user) {
+        console.log('user subscribe in home', user);
+        // this.currentUser = user;
+        return;
+      }
+      this.navCtrl.push(LoginPage);
+    });
+
+    this._messaging = firebase.messaging(this._firebaseApp);
+    navigator.serviceWorker.register('../../service-worker.js') //register custom service-worker for firebase cloud messaging
+      .then((registration) => {
+        this._messaging.useServiceWorker(registration);
+        this._messaging.requestPermission()
+          .then(() => {
+            console.log('Notification permission granted.');
+            this._messaging.getToken()
+              .then((currentToken) => {
+                if (currentToken) {
+                  this.userService.saveMessagingToken(currentToken);
+                } else {
+                  console.log('No Instance ID token available. Request permission to generate one.');
+                }
+              })
+              .catch(function(err) {
+                console.log('An error occurred while retrieving token. ', err);
+              });
+          })
+          .catch(function(err) {
+            console.log('Unable to get permission to notify.', err);
+          });
+      });
+
+  };
 
   ngOnInit(): void {
-    console.log('im page onInit');
-    console.log(this.userService.currentUser);
-    this.userService.currentUser.subscribe((userObject) => {
-      console.log('=========');
-      console.log(userObject);
-      this.currentUser = userObject;
-    });
+    // this.userService.currentLocalUser.subscribe((userObject) => {
+    //   console.log('=========');
+    //   console.log(userObject);
+    //   this.currentUser = userObject;
+    // });
     this.timer = Observable.timer(0, 1000)
       .subscribe((t) => {
         let currentTimestamp = new Date().getTime();

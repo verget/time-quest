@@ -15,39 +15,26 @@ import { HttpResponse } from '../app/http-response';
 import { LoginPage } from '../pages/login/login';
 
 import { config } from '../environments/environment';
-import {Subscription} from "rxjs";
 
 @Injectable()
 export class UserService {
 
-  currentUser: FirebaseListObservable<any>;
+  currentUserObject: User;
+  // currentLocalUser: FirebaseListObservable<any>;
 
-  constructor(private db: AngularFireDatabase,
-              private afAuth: AngularFireAuth,
+  constructor(private afAuth: AngularFireAuth,
+              private db: AngularFireDatabase,
               public events: Events,
               private http: Http) {
-
-    console.log('im service');
-    this.currentUser = this.getCurrentUser();
-    // this.afAuth.authState.subscribe(user => {
-    //   console.log('im service subscribe');
-    //   console.log(user);
-    //   if (user) {
-    //     this.currentUser = this.getUser(user.uid);
-    //     return;
-    //   }
-    //   this.events.publish('user:logout');
-    // });
   }
 
   /**
    * getUser function
-   * @param $key
+   * @param uid
    * @returns {Promise<User>}
    */
 
   getUser(uid: string): FirebaseListObservable<any> {
-    console.log(uid);
     return this.db.list('/users', {
       query: {
         orderByChild: 'uid',
@@ -56,13 +43,31 @@ export class UserService {
     });
   }
 
-  getCurrentUser(): any {
-    return this.afAuth.authState.subscribe(user => {
-      if (user) {
-        return this.getUser(user.uid);
-      }
-      throw 'error auth';
-    });
+  setCurrentUser(userObject: any): any {
+    this.currentUserObject = userObject;
+    this.getUser(userObject.uid).subscribe((userObject) => {
+      this.currentUserObject = userObject;
+    })
+  }
+
+  // getCurrentUser(): any {
+  //   return this.afAuth.authState.subscribe(user => {
+  //     if (user) {
+  //       return this.getUser(user.uid);
+  //     }
+  //     throw 'error auth';
+  //   });
+  // }
+
+  saveMessagingToken(token: string):Observable<HttpResponse> {
+    if (this.currentUserObject) {
+      return this.http
+        .post(config.apiUrl + '/saveToken', {
+          userUid: this.currentUserObject.uid,
+          token: token,
+        })
+        .map(res => res.json());
+    }
   }
 
   createUser(userObject: any): Observable<HttpResponse> {
@@ -107,7 +112,7 @@ export class UserService {
   // }
 
   logOut() {
-    return this.events.publish('user:logout');
+    return this.afAuth.auth.signOut();
   }
 
   private handlerError(error: any): Promise<any> {
