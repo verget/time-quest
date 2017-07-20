@@ -25,16 +25,23 @@ export class HomePage implements OnInit, OnDestroy{
               private loadingCtrl: LoadingController,
               public navCtrl: NavController) {
 
-    afAuth.authState.subscribe(user => {
-      if (user) {
-        return;
-      }
-      this.navCtrl.push(LoginPage);
-    });
+    // afAuth.authState.subscribe(user => {
+    //   if (user) {
+    //     console.log('user subscribe in home', user);
+    //     this.currentUser = user;
+    //     return;
+    //   }
+    //   this.navCtrl.push(LoginPage);
+    // });
+    console.log('im page constructor');
   }
 
   ngOnInit(): void {
+    console.log('im page onInit');
+    console.log(this.userService.currentUser);
     this.userService.currentUser.subscribe((userObject) => {
+      console.log('=========');
+      console.log(userObject);
       this.currentUser = userObject;
     });
     this.timer = Observable.timer(0, 1000)
@@ -53,7 +60,7 @@ export class HomePage implements OnInit, OnDestroy{
   checkCode(): void {
     if (this.codeString) {
       this.showLoader();
-      this.userService.useCode(this.codeString) //todo need validation
+      this.userService.useCode(this.codeString, this.currentUser.uid) //todo need validation
         .subscribe((result) => {
           this.loading.dismiss();
           this.codeString = '';
@@ -71,7 +78,7 @@ export class HomePage implements OnInit, OnDestroy{
   }
 
   logout() {
-    return this.afAuth.auth.signOut();
+    return this.userService.logOut();
   };
 
   showLoader(){

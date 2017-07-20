@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { Platform, MenuController, Nav } from 'ionic-angular';
+import { Platform, MenuController, Nav, Events } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
@@ -18,12 +18,18 @@ export class MyApp {
   constructor(platform: Platform,
               statusBar: StatusBar,
               splashScreen: SplashScreen,
-              public menu: MenuController) {
+              public menu: MenuController,
+              public events: Events) {
 
     this.pages = [
       { title: 'Admin Page', component: AdminPage },
       { title: 'Home Page', component: HomePage }
     ];
+
+    this.events.subscribe('user:logout', () => {
+      this.nav.setRoot(LoginPage);
+    });
+
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.

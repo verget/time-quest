@@ -29,6 +29,7 @@ export class LoginPage {
               public navCtrl: NavController,
               public loadingCtrl: LoadingController,
               public formBuilder: FormBuilder) {
+
     afAuth.authState.subscribe(user => {
       if (!user) {
         return;
@@ -61,7 +62,6 @@ export class LoginPage {
           this.userService.createUser({$key, name, email})
             .subscribe((result) => {
               console.log(result);
-
             })
         })
         .catch((err) => {
@@ -99,6 +99,19 @@ export class LoginPage {
         this.loading.dismiss();
       });
   }
+
+  // firebase.auth().getRedirectResult()
+  //   .then(function(result) {
+  //     if (result.credential) {
+  //       // Accounts successfully linked.
+  //       var credential = result.credential;
+  //       var user = result.user;
+  //       // ...
+  //     }
+  //   }).catch(function(error) {
+  //     // Handle Errors here.
+  //     // ...
+  //   });
 
   signInWithFacebook() {
     this.showLoader();

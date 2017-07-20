@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Http } from "@angular/http";
 import { AngularFireDatabase, FirebaseListObservable, FirebaseObjectObservable } from 'angularfire2/database';
+import { AngularFireAuth } from 'angularfire2/auth';
 import { Thenable } from "firebase/app";
+import { Events } from 'ionic-angular';
 
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/map';
@@ -10,20 +12,32 @@ import { Observable } from "rxjs/Observable";
 
 import { User } from '../app/user';
 import { HttpResponse } from '../app/http-response';
+import { LoginPage } from '../pages/login/login';
 
 import { config } from '../environments/environment';
+import {Subscription} from "rxjs";
 
 @Injectable()
 export class UserService {
 
-  currentUserObject: User;
+  currentUser: FirebaseListObservable<any>;
 
   constructor(private db: AngularFireDatabase,
+              private afAuth: AngularFireAuth,
+              public events: Events,
               private http: Http) {
-    this.currentUser.subscribe((userObject) => {
-      console.log(userObject);
-      this.currentUserObject = userObject;
-    })
+
+    console.log('im service');
+    this.currentUser = this.getCurrentUser();
+    // this.afAuth.authState.subscribe(user => {
+    //   console.log('im service subscribe');
+    //   console.log(user);
+    //   if (user) {
+    //     this.currentUser = this.getUser(user.uid);
+    //     return;
+    //   }
+    //   this.events.publish('user:logout');
+    // });
   }
 
   /**
@@ -32,8 +46,23 @@ export class UserService {
    * @returns {Promise<User>}
    */
 
-  getUser($key: string): FirebaseObjectObservable<User> {
-    return this.db.object('/users/'+$key);
+  getUser(uid: string): FirebaseListObservable<any> {
+    console.log(uid);
+    return this.db.list('/users', {
+      query: {
+        orderByChild: 'uid',
+        equalTo: uid
+      }
+    });
+  }
+
+  getCurrentUser(): any {
+    return this.afAuth.authState.subscribe(user => {
+      if (user) {
+        return this.getUser(user.uid);
+      }
+      throw 'error auth';
+    });
   }
 
   createUser(userObject: any): Observable<HttpResponse> {
@@ -60,11 +89,11 @@ export class UserService {
    * @param codeString
    * @returns {Observable<R>}
    */
-  useCode(codeString: string): Observable<HttpResponse> {
+  useCode(codeString: string, userUid: string): Observable<HttpResponse> {
     return this.http
       .post(config.apiUrl + '/useCode', {
         codeString: codeString,
-        userKey: this.currentUserObject.$key,
+        userKey: userUid,
       })
       .map(res => res.json());
   }
@@ -73,8 +102,12 @@ export class UserService {
    * Return current user observable
    * @returns {FirebaseObjectObservable<User>}
    */
-  get currentUser():FirebaseObjectObservable<User> {
-    return this.getUser('-Kp-5ifqN1-ooUeQaf9t'); //todo use local storage
+  // get currentUser():FirebaseObjectObservable<User> {
+  //   return this.getUser('-Kp-5ifqN1-ooUeQaf9t'); //todo use local storage
+  // }
+
+  logOut() {
+    return this.events.publish('user:logout');
   }
 
   private handlerError(error: any): Promise<any> {
