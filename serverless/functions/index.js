@@ -34,7 +34,7 @@ exports.useCode = functions.https.onRequest((req, res) => applyCors(req, res, ()
     .then(codeRef => {
       let codeObject = codeRef.val();
       if (!codeObject) {
-        return res.send({
+        return res.status(500).send({
           success: false,
           errorCode: 1004,
           error: 'Code not found'
@@ -63,7 +63,7 @@ exports.useCode = functions.https.onRequest((req, res) => applyCors(req, res, ()
     })
     .catch((err) => {
       console.error(err);
-      return res.send({
+      return res.status(500).send({
         success: false,
         errorCode: 1000,
         error: err
@@ -88,7 +88,7 @@ exports.createCode = functions.https.onRequest((req, res) => applyCors(req, res,
       })
     })
     .catch((err) => {
-      return res.send({
+      return res.status(500).send({
         success: false,
         error: err,
         errorCode: 1000
@@ -106,7 +106,7 @@ exports.createUser = functions.https.onRequest((req, res) => applyCors(req, res,
       })
     })
     .catch((err) => {
-      return res.send({
+      return res.status(500).send({
         success: false,
         error: err,
         errorCode: 1000
@@ -133,7 +133,7 @@ exports.changeCode = functions.https.onRequest((req, res) => applyCors(req, res,
       })
     })
     .catch((err) => {
-      return res.send({
+      return res.status(500).send({
         success: false,
         error: err,
         errorCode: 1000
@@ -155,7 +155,7 @@ exports.deleteCode = functions.https.onRequest((req, res) => applyCors(req, res,
       })
     })
     .catch((err) => {
-      return res.send({
+      return res.status(500).send({
         success: false,
         error: err,
         errorCode: 1000
@@ -163,3 +163,38 @@ exports.deleteCode = functions.https.onRequest((req, res) => applyCors(req, res,
     })
 }));
 
+exports.saveToken = functions.https.onRequest((req, res) => applyCors(req, res, () => {
+  const userUid = req.body.userUid;
+  const token = req.body.token;
+  return getUserObjectByKeyValue('uid', userUid)
+    .then((userObject) => {
+      return admin.database().ref('/users')
+        .child(userObject.key)
+        .update({token: token})
+        .then(() => {
+          return res.send({
+            success: true
+          });
+        })
+    .catch((err) => {
+      return res.status(500).send({
+        success: false,
+        error: err,
+        errorCode: 1000
+      })
+    })
+  });
+}));
+
+function getUserObjectByKeyValue(key, val) {
+  return new Promise((res, rej) => {
+    const usersRef = admin.database().ref('/users');
+    return usersRef.orderByChild(key).equalTo(val).once('value')
+      .then((userSnapshot) => {
+        let userKey = Object.keys(userSnapshot.val())[0];
+        let userObject = userSnapshot[userKey];
+        userObject.key = userKey;
+        res(userObject);
+      }).catch(rej);
+  })
+}

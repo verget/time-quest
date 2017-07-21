@@ -20,12 +20,19 @@ import { config } from '../environments/environment';
 export class UserService {
 
   currentUserObject: User;
+  currentUser: FirebaseObjectObservable<any>;
   // currentLocalUser: FirebaseListObservable<any>;
 
   constructor(private afAuth: AngularFireAuth,
               private db: AngularFireDatabase,
               public events: Events,
               private http: Http) {
+
+    afAuth.authState.subscribe(user => {
+      if (user) {
+        this.currentUserObject = this.getUser(user.uid);
+      }
+    });
   }
 
   /**
@@ -34,18 +41,25 @@ export class UserService {
    * @returns {Promise<User>}
    */
 
-  getUser(uid: string): FirebaseListObservable<any> {
+  getUser(uid: string): any {
     return this.db.list('/users', {
       query: {
         orderByChild: 'uid',
         equalTo: uid
       }
-    });
+    }).map((res) => {
+      if (res.length) {
+        return res[0];
+      }
+      return res;
+    })
   }
 
   setCurrentUser(userObject: any): any {
     this.currentUserObject = userObject;
     this.getUser(userObject.uid).subscribe((userObject) => {
+      console.log('======');
+      console.log(userObject);
       this.currentUserObject = userObject;
     })
   }
@@ -59,25 +73,28 @@ export class UserService {
   //   });
   // }
 
-  saveMessagingToken(token: string):Observable<HttpResponse> {
-    if (this.currentUserObject) {
-      return this.http
-        .post(config.apiUrl + '/saveToken', {
-          userUid: this.currentUserObject.uid,
-          token: token,
-        })
-        .map(res => res.json());
-    }
+  saveMessagingToken(token: string):any {
+     return this.afAuth.authState.take(1).subscribe((userObject) => {
+       console.log('tokenSaving', userObject);
+       return this.http.post(config.apiUrl + '/saveToken', {
+         userUid: userObject.uid,
+         token: token
+       })
+         .toPromise()
+         .then((res) => res.json())
+         .catch((err) => err)
+     })
   }
 
   createUser(userObject: any): Observable<HttpResponse> {
     return this.http
       .put(config.apiUrl + '/createUser', {
         name: userObject.name,
-        $key: userObject.$key,
+        uid: userObject.uid,
         email: userObject.email
       })
-      .map(res => res.json());
+      .map(res => res.json())
+      .catch((error:any) => Observable.throw(error.json().error || 'Server error'));
   }
 
   /**

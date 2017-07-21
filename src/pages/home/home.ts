@@ -39,31 +39,6 @@ export class HomePage implements OnInit, OnDestroy{
       }
       this.navCtrl.push(LoginPage);
     });
-
-    this._messaging = firebase.messaging(this._firebaseApp);
-    navigator.serviceWorker.register('../../service-worker.js') //register custom service-worker for firebase cloud messaging
-      .then((registration) => {
-        this._messaging.useServiceWorker(registration);
-        this._messaging.requestPermission()
-          .then(() => {
-            console.log('Notification permission granted.');
-            this._messaging.getToken()
-              .then((currentToken) => {
-                if (currentToken) {
-                  this.userService.saveMessagingToken(currentToken);
-                } else {
-                  console.log('No Instance ID token available. Request permission to generate one.');
-                }
-              })
-              .catch(function(err) {
-                console.log('An error occurred while retrieving token. ', err);
-              });
-          })
-          .catch(function(err) {
-            console.log('Unable to get permission to notify.', err);
-          });
-      });
-
   };
 
   ngOnInit(): void {
@@ -79,6 +54,38 @@ export class HomePage implements OnInit, OnDestroy{
           this.timeDiff = this.currentUser.endTime - currentTimestamp;
         }
       });
+
+    this._messaging = firebase.messaging(this._firebaseApp);
+    this._messaging.requestPermission().then(() => {
+      console.log('Notification permission granted.');
+      this._messaging.getToken().then((currentToken) => {
+        if (currentToken) {
+          this.userService.saveMessagingToken(currentToken);
+
+          this._messaging.onTokenRefresh(function() {
+            this._messaging.getToken()
+              .then(function(refreshedToken) {
+                console.log('Token refreshed.');
+                // Indicate that the new Instance ID token has not yet been sent to the
+                // app server.
+                this.userService.saveMessagingToken(refreshedToken);
+              })
+              .catch(function(err) {
+                console.log('Unable to retrieve refreshed token ', err);
+                //showToken('Unable to retrieve refreshed token ', err);
+              });
+          });
+        } else {
+          console.log('No Instance ID token available. Request permission to generate one.');
+        }
+      })
+        .catch(function(err) {
+          console.log('An error occurred while retrieving token. ', err);
+        });
+    })
+      .catch(function(err) {
+        console.log('Unable to get permission to notify.', err);
+      });
   }
 
   ngOnDestroy(): void {
@@ -88,7 +95,7 @@ export class HomePage implements OnInit, OnDestroy{
   checkCode(): void {
     if (this.codeString) {
       this.showLoader();
-      this.userService.useCode(this.codeString, this.currentUser.uid) //todo need validation
+      this.userService.useCode(this.codeString, this.userService.currentUserObject.uid) //todo need validation
         .subscribe((result) => {
           this.loading.dismiss();
           this.codeString = '';

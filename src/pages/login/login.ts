@@ -59,8 +59,8 @@ export class LoginPage {
           console.log(res);
           let name = this.userSignUpNickname;
           let email = res.email;
-          let $key = res.uid;
-          this.userService.createUser({$key, name, email})
+          let uid = res.uid;
+          this.userService.createUser({uid, name, email})
             .subscribe((result) => {
               console.log(result);
             })

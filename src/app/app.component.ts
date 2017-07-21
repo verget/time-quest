@@ -1,7 +1,9 @@
-import { Component, ViewChild} from '@angular/core';
+import { Component, ViewChild, Injectable, Inject} from '@angular/core';
 import { Platform, MenuController, Nav, Events } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
+import * as firebase from 'firebase';
+import { FirebaseApp } from "angularfire2";
 
 import { UserService } from "../services/user.service";
 import { LoginPage } from '../pages/login/login';
@@ -12,14 +14,17 @@ import { AdminPage } from '../pages/admin/admin';
   templateUrl: 'app.html'
 })
 
+@Injectable()
 export class MyApp {
   @ViewChild(Nav) nav: Nav;
   rootPage:any = HomePage;
   pages: Array<{ title: string, component: any }>;
+  _messaging: firebase.messaging.Messaging;
 
   constructor(platform: Platform,
               statusBar: StatusBar,
               splashScreen: SplashScreen,
+              @Inject(FirebaseApp) private _firebaseApp: firebase.app.App,
               public menu: MenuController,
               public events: Events) {
 
@@ -31,6 +36,16 @@ export class MyApp {
     this.events.subscribe('user:logout', () => {
       this.nav.setRoot(LoginPage);
     });
+
+    this._messaging = firebase.messaging(this._firebaseApp);
+    navigator.serviceWorker.register('../../service-worker.js') //register custom service-worker for firebase cloud messaging
+      .then((registration) => {
+        this._messaging.useServiceWorker(registration);
+      })
+      .catch((err) => {
+        console.log('Im instead usedServiceWorker ');
+        console.error(err);
+      });
 
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.

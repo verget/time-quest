@@ -9,7 +9,7 @@
     "build": "ionic-app-scripts build",
     "lint": "ionic-app-scripts lint",
     "ionic:build": "ionic-app-scripts build",
-    "start": "ionic-app-scripts serve",
+    "start": "ionic serve --nolivereload",
     "functions-deploy": "cd serverless && firebase deploy --only functions"
   },
   "dependencies": {
