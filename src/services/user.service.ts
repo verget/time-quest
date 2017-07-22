@@ -4,6 +4,7 @@ import { AngularFireDatabase, FirebaseListObservable, FirebaseObjectObservable }
 import { AngularFireAuth } from 'angularfire2/auth';
 import { Thenable } from "firebase/app";
 import { Events } from 'ionic-angular';
+import * as firebase from 'firebase/app';
 
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/map';
@@ -20,21 +21,28 @@ import { config } from '../environments/environment';
 export class UserService {
 
   currentUserObject: User;
-  currentUser: FirebaseObjectObservable<any>;
-  // currentLocalUser: FirebaseListObservable<any>;
+  currentUser: Observable<any>;
+  currentLocalUser: Observable<any>;
 
   constructor(private afAuth: AngularFireAuth,
               private db: AngularFireDatabase,
               public events: Events,
               private http: Http) {
 
-    afAuth.authState.subscribe(user => {
-      if (user) {
-        this.currentUserObject = this.getUser(user.uid);
-      }
+    this.currentLocalUser = new Observable(observer => {
+      return afAuth.authState.subscribe(user => {
+        if (user) {
+          this.getUser(user.uid).subscribe((localUser) => {
+            observer.next(localUser);
+          });
+        } else {
+          observer.complete();
+        }
+      })
     });
   }
 
+  getAuthenticated(): Observable<any> { return this.afAuth.authState; }
   /**
    * getUser function
    * @param uid
@@ -58,20 +66,9 @@ export class UserService {
   setCurrentUser(userObject: any): any {
     this.currentUserObject = userObject;
     this.getUser(userObject.uid).subscribe((userObject) => {
-      console.log('======');
-      console.log(userObject);
       this.currentUserObject = userObject;
     })
   }
-
-  // getCurrentUser(): any {
-  //   return this.afAuth.authState.subscribe(user => {
-  //     if (user) {
-  //       return this.getUser(user.uid);
-  //     }
-  //     throw 'error auth';
-  //   });
-  // }
 
   saveMessagingToken(token: string):any {
      return this.afAuth.authState.take(1).subscribe((userObject) => {
@@ -119,14 +116,6 @@ export class UserService {
       })
       .map(res => res.json());
   }
-
-  /**
-   * Return current user observable
-   * @returns {FirebaseObjectObservable<User>}
-   */
-  // get currentUser():FirebaseObjectObservable<User> {
-  //   return this.getUser('-Kp-5ifqN1-ooUeQaf9t'); //todo use local storage
-  // }
 
   logOut() {
     return this.afAuth.auth.signOut();
