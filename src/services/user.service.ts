@@ -21,7 +21,6 @@ import { config } from '../environments/environment';
 export class UserService {
 
   currentUserObject: User;
-  currentUser: Observable<any>;
   currentLocalUser: Observable<any>;
 
   constructor(private afAuth: AngularFireAuth,
@@ -42,7 +41,8 @@ export class UserService {
     });
   }
 
-  getAuthenticated(): Observable<any> { return this.afAuth.authState; }
+  getAuthenticated(): Observable<any> {return this.afAuth.authState};
+
   /**
    * getUser function
    * @param uid
@@ -70,16 +70,14 @@ export class UserService {
     })
   }
 
-  saveMessagingToken(token: string):any {
+  saveMessagingToken(token: string): any {
      return this.afAuth.authState.take(1).subscribe((userObject) => {
        console.log('tokenSaving', userObject);
        return this.http.post(config.apiUrl + '/saveToken', {
          userUid: userObject.uid,
          token: token
        })
-         .toPromise()
-         .then((res) => res.json())
-         .catch((err) => err)
+         .map((res) => res.json())
      })
   }
 

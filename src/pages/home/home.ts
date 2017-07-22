@@ -17,7 +17,7 @@ import { LoginPage } from '../login/login';
 })
 
 @Injectable()
-export class HomePage implements OnInit, OnDestroy{
+export class HomePage implements OnInit, OnDestroy, CanActivate{
   timer: Subscription;
   timeDiff: number = 0;
   codeString: string;
@@ -32,17 +32,20 @@ export class HomePage implements OnInit, OnDestroy{
               @Inject(FirebaseApp) private _firebaseApp: firebase.app.App,
               public navCtrl: NavController) {
     this.currentUser = {name: ''};
-    afAuth.authState.subscribe(user => {
-      if (user) {
-        return;
-      }
-      this.navCtrl.push(LoginPage);
-    });
   };
 
-  ngOnInit(): void {
+  canActivate(): Observable<boolean> {
+    return this.afAuth.authState.map(user => {
+      if (user != null)
+        return true;
+      this.navCtrl.push(LoginPage);
+    })
+  }
 
-    this.userService.currentLocalUser.subscribe((userObject) => {
+  ngOnInit(): void {
+    this.showLoader();
+    this.userService.currentLocalUser.take(1).subscribe((userObject) => {
+      this.loading.dismiss();
       this.currentUser = userObject;
     });
     this.timer = Observable.timer(0, 1000)
@@ -53,37 +56,45 @@ export class HomePage implements OnInit, OnDestroy{
         }
       });
 
-    // this._messaging = firebase.messaging(this._firebaseApp);
-    // this._messaging.requestPermission().then(() => {
-    //   console.log('Notification permission granted.');
-    //   this._messaging.getToken().then((currentToken) => {
-    //     if (currentToken) {
-    //       this.userService.saveMessagingToken(currentToken);
-    //
-    //       this._messaging.onTokenRefresh(function() {
-    //         this._messaging.getToken()
-    //           .then(function(refreshedToken) {
-    //             console.log('Token refreshed.');
-    //             // Indicate that the new Instance ID token has not yet been sent to the
-    //             // app server.
-    //             this.userService.saveMessagingToken(refreshedToken);
-    //           })
-    //           .catch(function(err) {
-    //             console.log('Unable to retrieve refreshed token ', err);
-    //             //showToken('Unable to retrieve refreshed token ', err);
-    //           });
-    //       });
-    //     } else {
-    //       console.log('No Instance ID token available. Request permission to generate one.');
-    //     }
-    //   })
-    //     .catch(function(err) {
-    //       console.log('An error occurred while retrieving token. ', err);
-    //     });
-    // })
-    //   .catch(function(err) {
-    //     console.log('Unable to get permission to notify.', err);
-    //   });
+    this._messaging = firebase.messaging(this._firebaseApp);
+    this._messaging.requestPermission().then(() => {
+      console.log('Notification permission granted.');
+      this._messaging.getToken().then((currentToken) => {
+        if (currentToken) {
+          this.userService.saveMessagingToken(currentToken)
+            .subscribe((res) => {
+              console.log(res);
+              this._messaging.onTokenRefresh(() => {
+                this._messaging.getToken()
+                  .then((refreshedToken) => {
+                    console.log('Token refreshed.');
+                    // Indicate that the new Instance ID token has not yet been sent to the
+                    // app server.
+                    this.userService.saveMessagingToken(refreshedToken)
+                      .take(1)
+                      .subscribe((res) => {
+                        console.log(res);
+                      })
+                  })
+                  .catch((err) => {
+                    console.log('Unable to retrieve refreshed token ', err);
+                    //showToken('Unable to retrieve refreshed token ', err);
+                  });
+              });
+            })
+
+
+        } else {
+          console.log('No Instance ID token available. Request permission to generate one.');
+        }
+      })
+        .catch(function(err) {
+          console.log('An error occurred while retrieving token. ', err);
+        });
+    })
+      .catch(function(err) {
+        console.log('Unable to get permission to notify.', err);
+      });
   }
 
   ngOnDestroy(): void {
