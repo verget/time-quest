@@ -33,6 +33,22 @@ function getUserObjectByKeyValue(key, val) {
   })
 }
 
+function getKeyByValue(object, value) {
+  for (let key in object) {
+    if (object[key] === value)
+      return key;
+  }
+  return false;
+}
+
+function getAllValues(object) {
+  let values = [];
+  for (let key in object) {
+    values.push(object[key]);
+  }
+  return values;
+}
+
 /**
  * Use entered code for current user, if success will add code cost to users endTime and
  * save it in users used codes
@@ -182,9 +198,19 @@ exports.saveToken = functions.https.onRequest((req, res) => applyCors(req, res, 
   const token = req.body.token;
   return getUserObjectByKeyValue('uid', userUid)
     .then((userObject) => {
+      let isExist = getKeyByValue(userObject.notificationTokens, token);
+      if (userObject.notificationTokens && isExist) {
+        return res.send({
+          success: false,
+          error: 'this token already exist for user',
+          errorCode: 1001
+        });
+      }
       return admin.database().ref('/users')
         .child(userObject.key)
-        .update({messageToken: token})
+        .child('notificationTokens')
+        .push()
+        .set(token)
         .then(() => {
           return res.send({
             success: true
@@ -200,7 +226,8 @@ exports.saveToken = functions.https.onRequest((req, res) => applyCors(req, res, 
   });
 }));
 
-exports.sendMessage = functions.https.onRequest((req, res) => applyCors(req, res, () => {
+
+exports.sendNotification = functions.https.onRequest((req, res) => applyCors(req, res, () => {
   const userUid = req.body.userUid;
   const messageText = req.body.messageText;
   const payload = {
@@ -209,15 +236,50 @@ exports.sendMessage = functions.https.onRequest((req, res) => applyCors(req, res
       body: messageText
     }
   };
+  let notificationTokens = {};
+  let userObject = {};
   return getUserObjectByKeyValue('uid', userUid)
-    .then((userObject) => {
-      return admin.messaging().sendToDevice(userObject.messageToken, payload)
+    .then((userResp) => {
+      userObject = userResp;
+      notificationTokens = getAllValues(userObject.notificationTokens);
+      if (!notificationTokens.length) {
+        return res.status(500).send({
+          success: false,
+          error: 'There are no notification tokens to send to.',
+          errorCode: 1004
+        })
+      }
+      console.log(notificationTokens);
+      return admin.messaging().sendToDevice(notificationTokens, payload)
     })
     .then((response) => {
       console.log("Successfully sent message:", response);
-      return res.send({
-        success: true
+      const tokensToRemove = [];
+      response.results.forEach((result, index) => {
+        const error = result.error;
+        console.log('Error: ', error);
+        if (error) {
+          console.error('Failure sending notification to ' + notificationTokens[index], error);
+          // Cleanup the tokens who are not registered anymore.
+          if (error.code === 'messaging/invalid-registration-token' ||
+              error.code === 'messaging/registration-token-not-registered') {
+            tokensToRemove.push(
+              admin.database()
+                .ref('/users')
+                .child(userObject.key)
+                .child('notificationTokens')
+                .child(Object.keys(userObject.notificationTokens)[index]) //not sure about this
+                .remove()
+            );
+          }
+        }
       });
+      return Promise.all(tokensToRemove)
+        .then(() => {
+          return res.send({
+            success: true
+          });
+        });
     })
     .catch((err) => {
       return res.status(500).send({

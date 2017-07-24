@@ -78,7 +78,7 @@ export class UserService {
   }
 
   sendMessageToUser(uid: string, messageText: string): Observable<HttpResponse> {
-    return this.http.post(config.apiUrl + '/sendMessage', {
+    return this.http.post(config.apiUrl + '/sendNotification', {
       userUid: uid,
       messageText: messageText
     })
