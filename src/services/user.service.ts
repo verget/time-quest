@@ -20,7 +20,6 @@ import { config } from '../environments/environment';
 @Injectable()
 export class UserService {
 
-  currentUserObject: User;
   currentLocalUser: Observable<any>;
 
   constructor(private afAuth: AngularFireAuth,
@@ -63,22 +62,27 @@ export class UserService {
     })
   }
 
-  setCurrentUser(userObject: any): any {
-    this.currentUserObject = userObject;
-    this.getUser(userObject.uid).subscribe((userObject) => {
-      this.currentUserObject = userObject;
+  // setCurrentUser(userObject: any): any {
+  //   this.currentUserObject = userObject;
+  //   this.getUser(userObject.uid).subscribe((userObject) => {
+  //     this.currentUserObject = userObject;
+  //   })
+  // }
+
+  saveMessagingToken(token: string, uid: string): Observable<HttpResponse> {
+    return this.http.post(config.apiUrl + '/saveToken', {
+     userUid: uid,
+     token: token
     })
+     .map((res) => res.json())
   }
 
-  saveMessagingToken(token: string): any {
-     return this.afAuth.authState.take(1).subscribe((userObject) => {
-       console.log('tokenSaving', userObject);
-       return this.http.post(config.apiUrl + '/saveToken', {
-         userUid: userObject.uid,
-         token: token
-       })
-         .map((res) => res.json())
-     })
+  sendMessageToUser(uid: string, messageText: string): Observable<HttpResponse> {
+    return this.http.post(config.apiUrl + '/sendMessage', {
+      userUid: uid,
+      messageText: messageText
+    })
+      .map((res) => res.json())
   }
 
   createUser(userObject: any): Observable<HttpResponse> {

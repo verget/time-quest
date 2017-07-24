@@ -20,6 +20,19 @@ function applyCors(req, res, fn) {
   })
 }
 
+function getUserObjectByKeyValue(key, val) {
+  return new Promise((res, rej) => {
+    const usersRef = admin.database().ref('/users');
+    return usersRef.orderByChild(key).equalTo(val).once('value')
+      .then((userSnapshot) => {
+        let userKey = Object.keys(userSnapshot.val())[0];
+        let userObject = userSnapshot.val()[userKey];
+        userObject.key = userKey;
+        return res(userObject);
+      }).catch(rej);
+  })
+}
+
 /**
  * Use entered code for current user, if success will add code cost to users endTime and
  * save it in users used codes
@@ -98,8 +111,9 @@ exports.createCode = functions.https.onRequest((req, res) => applyCors(req, res,
 
 exports.createUser = functions.https.onRequest((req, res) => applyCors(req, res, () => {
   const endTime = new Date().getTime() + 30 * 60000;
-  return admin.database().ref('/users/'+req.body.$key)
-    .set({name: req.body.name, email: req.body.email, endTime: endTime})
+  return admin.database().ref('users')
+    .push()
+    .set({name: req.body.name, email: req.body.email, endTime: endTime, uid: req.body.uid})
     .then(() => {
       return res.send({
         success: true
@@ -170,7 +184,7 @@ exports.saveToken = functions.https.onRequest((req, res) => applyCors(req, res, 
     .then((userObject) => {
       return admin.database().ref('/users')
         .child(userObject.key)
-        .update({token: token})
+        .update({messageToken: token})
         .then(() => {
           return res.send({
             success: true
@@ -186,15 +200,30 @@ exports.saveToken = functions.https.onRequest((req, res) => applyCors(req, res, 
   });
 }));
 
-function getUserObjectByKeyValue(key, val) {
-  return new Promise((res, rej) => {
-    const usersRef = admin.database().ref('/users');
-    return usersRef.orderByChild(key).equalTo(val).once('value')
-      .then((userSnapshot) => {
-        let userKey = Object.keys(userSnapshot.val())[0];
-        let userObject = userSnapshot[userKey];
-        userObject.key = userKey;
-        res(userObject);
-      }).catch(rej);
-  })
-}
+exports.sendMessage = functions.https.onRequest((req, res) => applyCors(req, res, () => {
+  const userUid = req.body.userUid;
+  const messageText = req.body.messageText;
+  const payload = {
+    notification: {
+      title: "test push notification",
+      body: messageText
+    }
+  };
+  return getUserObjectByKeyValue('uid', userUid)
+    .then((userObject) => {
+      return admin.messaging().sendToDevice(userObject.messageToken, payload)
+    })
+    .then((response) => {
+      console.log("Successfully sent message:", response);
+      return res.send({
+        success: true
+      });
+    })
+    .catch((err) => {
+      return res.status(500).send({
+        success: false,
+        error: err,
+        errorCode: 1000
+      })
+    })
+}));

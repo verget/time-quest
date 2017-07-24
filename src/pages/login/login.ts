@@ -79,6 +79,7 @@ export class LoginPage {
     if(this.signInForm.valid) {
       return this.afAuth.auth.signInWithEmailAndPassword(this.userSignInEmail, this.userSignInPassword)
         .then((res) => {
+          console.log(res);
           let tempUser = {
             uid: res.uid,
             name: res.displayName,
@@ -86,7 +87,15 @@ export class LoginPage {
             endTime: 0,
             usedCodes: {}
           };
-          this.userService.setCurrentUser(tempUser);
+          //this.userService.setCurrentUser(tempUser); //todo delete
+          let name = res.displayName;
+          let email = res.email;
+          let uid = res.uid;
+          this.userService.createUser({uid, name, email})
+            .take(1)
+            .subscribe((result) => {
+              console.log(result);
+            })
         })
         .catch((err) => {
           this.toastService.showToast('error-toast', err.message);
