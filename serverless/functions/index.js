@@ -127,6 +127,7 @@ exports.createCode = functions.https.onRequest((req, res) => applyCors(req, res,
 
 exports.createUser = functions.https.onRequest((req, res) => applyCors(req, res, () => {
   const endTime = new Date().getTime() + 30 * 60000;
+  const role = 'user';
   return admin.database().ref('users')
     .push()
     .set({name: req.body.name, email: req.body.email, endTime: endTime, uid: req.body.uid})

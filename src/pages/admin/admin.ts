@@ -4,12 +4,15 @@ import { Observable, Subscription } from 'rxjs/Rx';
 import { FirebaseListObservable, FirebaseObjectObservable } from 'angularfire2/database';
 import { AlertController } from 'ionic-angular';
 import { LoadingController } from 'ionic-angular';
+import { AngularFireAuth } from 'angularfire2/auth';
 
 import { Code } from '../../app/code';
 import { User } from '../../app/user';
 import { CodeService } from "../../services/code.service";
 import { UserService } from "../../services/user.service";
 import { ToastService } from "../../services/toast.service";
+import { LoginPage } from '../login/login';
+import { HomePage } from '../home/home';
 
 @Component({
   selector: 'page-admin',
@@ -21,14 +24,33 @@ export class AdminPage implements OnInit{
   userList: FirebaseListObservable<[User]>;
   codeStringChange: boolean;
   loading: any;
+  currentUser: User;
 
-  constructor(private userService: UserService,
+  constructor(private afAuth: AngularFireAuth,
+              private userService: UserService,
               private codeService: CodeService,
               private loadingCtrl: LoadingController,
               private alertCtrl: AlertController,
-              private toastService: ToastService) {}
+              private toastService: ToastService,
+              public navCtrl: NavController) {
+
+    this.afAuth.authState.subscribe(user => {
+      if (user != null)
+        return true;
+      this.navCtrl.push(LoginPage);
+    })
+  }
 
   ngOnInit(): void {
+    this.showLoader();
+    this.userService.currentLocalUser.take(1).subscribe((userObject) => {
+      this.currentUser = userObject;
+      if (this.currentUser.role != 'admin') {
+        this.navCtrl.push(HomePage);
+      }
+      this.loading.dismiss();
+    });
+
     this.segment = 'codes';
     this.codeList = this.codeService.getCodeListObservable();
     this.userList = this.userService.getUserListObservable();
@@ -146,7 +168,8 @@ export class AdminPage implements OnInit{
 
   showLoader(){
     this.loading = this.loadingCtrl.create({
-      content: 'Please wait...'
+      content: 'Please wait...',
+      dismissOnPageChange: true
     });
 
     this.loading.present();

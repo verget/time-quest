@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 import { NavController, LoadingController } from 'ionic-angular';
 import { AngularFireAuth } from 'angularfire2/auth';
 import * as firebase from 'firebase/app';
@@ -30,13 +30,6 @@ export class LoginPage {
               public loadingCtrl: LoadingController,
               public formBuilder: FormBuilder) {
 
-    afAuth.authState.subscribe(user => {
-      console.log(user);
-      if (!user) {
-        return;
-      }
-      this.navCtrl.push(HomePage);
-    });
 
     this.signInForm = formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
@@ -54,6 +47,7 @@ export class LoginPage {
 
   signUp() {
     if(this.signUpForm.valid) {
+      this.showLoader();
       return this.afAuth.auth.createUserWithEmailAndPassword(this.userSignUpEmail, this.userSignUpPassword)
         .then((res) => {
           console.log(res);
@@ -63,6 +57,7 @@ export class LoginPage {
           this.userService.createUser({uid, name, email})
             .subscribe((result) => {
               console.log(result);
+              return this.navCtrl.push(HomePage);
             })
         })
         .catch((err) => {
@@ -77,25 +72,20 @@ export class LoginPage {
 
   signIn() {
     if(this.signInForm.valid) {
+      this.showLoader();
       return this.afAuth.auth.signInWithEmailAndPassword(this.userSignInEmail, this.userSignInPassword)
         .then((res) => {
           console.log(res);
-          let tempUser = {
-            uid: res.uid,
-            name: res.displayName,
-            email: res.email,
-            endTime: 0,
-            usedCodes: {}
-          };
-          //this.userService.setCurrentUser(tempUser); //todo delete
-          let name = res.displayName;
-          let email = res.email;
-          let uid = res.uid;
-          this.userService.createUser({uid, name, email})
-            .take(1)
-            .subscribe((result) => {
-              console.log(result);
-            })
+          return this.navCtrl.push(HomePage);
+          // let name = res.displayName;
+          // let email = res.email;
+          // let uid = res.uid;
+          // this.userService.createUser({uid, name, email})
+          //   .take(1)
+          //   .subscribe((result) => {
+          //     console.log(result);
+          //
+          //   })
         })
         .catch((err) => {
           this.toastService.showToast('error-toast', err.message);
@@ -107,14 +97,22 @@ export class LoginPage {
   }
 
   providerSignIn(provider) {
+    this.showLoader();
     return this.afAuth.auth
       .signInWithPopup(provider)
       .then(res => {
         console.log(res);
-        let credential = res.credential;
-        let user = res.user;
-        this.loading.dismiss();
-      });
+        let name = res.user.displayName;
+        let email = res.user.email;
+        let uid = res.user.uid;
+        this.userService.createUser({uid, name, email})
+          .take(1)
+          .subscribe((result) => {
+            this.loading.dismiss();
+            console.log(result);
+            return this.navCtrl.push(HomePage);
+          })
+      })
   }
 
   signInWithFacebook() {
@@ -135,7 +133,8 @@ export class LoginPage {
 
   showLoader(){
     this.loading = this.loadingCtrl.create({
-      content: 'Authenticating...'
+      content: 'Authenticating...',
+      dismissOnPageChange: true
     });
 
     this.loading.present();

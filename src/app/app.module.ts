@@ -19,8 +19,9 @@ import { AdminPage } from "../pages/admin/admin";
 import { UserService } from '../services/user.service';
 import { CodeService } from '../services/code.service';
 import { ToastService } from "../services/toast.service";
-
+import { ToolsService } from "../services/tools.service";
 import { TimerPipe } from './timer.pipe';
+
 
 
 @NgModule({
@@ -52,6 +53,7 @@ import { TimerPipe } from './timer.pipe';
     UserService,
     CodeService,
     ToastService,
+    ToolsService,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })

@@ -1,6 +1,6 @@
 <ion-header>
   <ion-navbar>
-    <button ion-button menuToggle>
+    <button ion-button menuToggle *ngIf="currentUser.role == 'admin'">
       <ion-icon name="menu"></ion-icon>
     </button>
     <ion-title>
@@ -23,16 +23,13 @@
     </ion-row>
     <ion-row>
       <ion-col col-2></ion-col>
-      <ion-col col-8>
+      <ion-col col-5>
         <ion-item class="no-padding">
           <ion-label floating>Код</ion-label>
           <ion-input type="text"[(ngModel)]="codeString"></ion-input>
         </ion-item>
       </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col col-2></ion-col>
-      <ion-col col-8>
+      <ion-col col-3>
         <div padding>
           <button ion-button color="primary" block (click)="checkCode()">Ввод</button>
         </div>
@@ -40,13 +37,13 @@
     </ion-row>
     <ion-row>
       <ion-col col-2></ion-col>
-      <ion-col col-4>
+      <ion-col col-5>
         <ion-item class="no-padding">
           <ion-label floating>Сообщение</ion-label>
           <ion-input type="text" [(ngModel)]="messageToSend"></ion-input>
         </ion-item>
       </ion-col>
-      <ion-col col-4>
+      <ion-col col-3>
         <div padding>
           <button ion-button color="primary" block (click)="sendMessageToUser()">Send</button>
         </div>

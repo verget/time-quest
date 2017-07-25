@@ -7,6 +7,7 @@ import { FirebaseApp } from "angularfire2";
 
 import { UserService } from "../../services/user.service";
 import { ToastService } from "../../services/toast.service";
+import { ToolsService } from "../../services/tools.service";
 import { User } from "../../app/user";
 import { LoginPage } from '../login/login';
 
@@ -20,22 +21,30 @@ export class HomePage implements OnInit, OnDestroy{
   timer: Subscription;
   timeDiff: number = 0;
   codeString: string;
-  currentUser: any;
+  currentUser: User;
   loading: any;
   messageToSend: string;
   _messaging: firebase.messaging.Messaging;
 
   constructor(private afAuth: AngularFireAuth,
+              private toolsService: ToolsService,
               private toastService: ToastService,
               private userService: UserService,
               private loadingCtrl: LoadingController,
               @Inject(FirebaseApp) private _firebaseApp: firebase.app.App,
               public navCtrl: NavController) {
-    this.currentUser = {name: ''};
 
-    console.log('im here');
+    this.currentUser = {
+      name: '',
+      endTime: 0,
+      uid: '',
+      email: '',
+      role: 'user',
+      usedCodes: {},
+      notificationTokens: {}
+    };
+
     this.afAuth.authState.subscribe(user => {
-      console.log('authState', user);
       if (user != null)
         return true;
       this.navCtrl.push(LoginPage);
@@ -45,36 +54,39 @@ export class HomePage implements OnInit, OnDestroy{
   ngOnInit(): void {
     this.showLoader();
     this._messaging = firebase.messaging(this._firebaseApp);
-
-    this.userService.currentLocalUser.take(1).subscribe((userObject) => {
+    this.userService.currentLocalUser.subscribe((userObject) => {
+      this.currentUser = userObject;
+    });
+    this.userService.currentLocalUser.subscribe((userObject) => {
       this.loading.dismiss();
       this.currentUser = userObject;
-      console.log('currentLocalUser', userObject);
-
       this._messaging.requestPermission().then(() => {
         console.log('Notification permission granted.');
         this._messaging.getToken().then((currentToken) => {
           if (currentToken) {
-            this.userService.saveMessagingToken(currentToken, this.currentUser.uid)
-              .take(1)
-              .subscribe((res) => {
-                console.log(res);
-                this._messaging.onTokenRefresh(() => {
-                  this._messaging.getToken()
-                    .then((refreshedToken) => {
-                      console.log('Token refreshed.');
-                      // Indicate that the new Instance ID token has not yet been sent to the
-                      // app server.
-                      this.userService.saveMessagingToken(refreshedToken, this.currentUser.uid)
-                        .take(1)
-                        .subscribe((res) => {
-                          console.log(res);
-                        })
-                    }).catch((err) => {
+            let isSaved = this.toolsService.isInObjectValues(userObject.notificationTokens, currentToken);
+            if (!isSaved) {
+              this.userService.saveNotificationToken(currentToken, userObject.uid)
+                .take(1)
+                .subscribe((res) => {
+                  console.log(res);
+                  this._messaging.onTokenRefresh(() => {
+                    this._messaging.getToken()
+                      .then((refreshedToken) => {
+                        console.log('Token refreshed.');
+                        // Indicate that the new Instance ID token has not yet been sent to the
+                        // app server.
+                        this.userService.saveNotificationToken(refreshedToken, userObject.uid)
+                          .take(1)
+                          .subscribe((res) => {
+                            console.log(res);
+                          })
+                      }).catch((err) => {
                       console.log('Unable to retrieve refreshed token ', err);
                     });
-                });
-              })
+                  });
+                })
+            }
           } else {
             console.log('No Instance ID token available. Request permission to generate one.');
           }
@@ -97,7 +109,7 @@ export class HomePage implements OnInit, OnDestroy{
 
   sendMessageToUser(): void {
     this.showLoader();
-    this.userService.sendMessageToUser(this.currentUser.uid, this.messageToSend)
+    this.userService.sendNotificationToUser(this.currentUser.uid, this.messageToSend)
       .take(1)
       .subscribe((res) => {
         this.loading.dismiss();
@@ -140,7 +152,8 @@ export class HomePage implements OnInit, OnDestroy{
 
   showLoader(){
     this.loading = this.loadingCtrl.create({
-      content: 'Please wait...'
+      content: 'Please wait...',
+      dismissOnPageChange: true
     });
 
     this.loading.present();

@@ -1,10 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Http } from "@angular/http";
-import { AngularFireDatabase, FirebaseListObservable, FirebaseObjectObservable } from 'angularfire2/database';
+import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
 import { AngularFireAuth } from 'angularfire2/auth';
-import { Thenable } from "firebase/app";
-import { Events } from 'ionic-angular';
-import * as firebase from 'firebase/app';
 
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/map';
@@ -13,24 +10,23 @@ import { Observable } from "rxjs/Observable";
 
 import { User } from '../app/user';
 import { HttpResponse } from '../app/http-response';
-import { LoginPage } from '../pages/login/login';
 
 import { config } from '../environments/environment';
 
 @Injectable()
 export class UserService {
 
-  currentLocalUser: Observable<any>;
+  currentLocalUser: Observable<User>;
 
   constructor(private afAuth: AngularFireAuth,
               private db: AngularFireDatabase,
-              public events: Events,
               private http: Http) {
 
     this.currentLocalUser = new Observable(observer => {
+      console.log('===');
       return afAuth.authState.subscribe(user => {
         if (user) {
-          this.getUser(user.uid).subscribe((localUser) => {
+          return this.getUser(user.uid).subscribe((localUser) => {
             observer.next(localUser);
           });
         } else {
@@ -48,7 +44,7 @@ export class UserService {
    * @returns {Promise<User>}
    */
 
-  getUser(uid: string): any {
+  getUser(uid: string): Observable<User> {
     return this.db.list('/users', {
       query: {
         orderByChild: 'uid',
@@ -62,14 +58,13 @@ export class UserService {
     })
   }
 
-  // setCurrentUser(userObject: any): any {
-  //   this.currentUserObject = userObject;
-  //   this.getUser(userObject.uid).subscribe((userObject) => {
-  //     this.currentUserObject = userObject;
-  //   })
-  // }
-
-  saveMessagingToken(token: string, uid: string): Observable<HttpResponse> {
+  /**
+   * Save device token to db after user auth
+   * @param token
+   * @param uid
+   * @returns {Observable<R>}
+   */
+  saveNotificationToken(token: string, uid: string): Observable<HttpResponse> {
     return this.http.post(config.apiUrl + '/saveToken', {
      userUid: uid,
      token: token
@@ -77,7 +72,13 @@ export class UserService {
      .map((res) => res.json())
   }
 
-  sendMessageToUser(uid: string, messageText: string): Observable<HttpResponse> {
+  /**
+   * Send notification to all user devices
+   * @param uid
+   * @param messageText
+   * @returns {Observable<R>}
+   */
+  sendNotificationToUser(uid: string, messageText: string): Observable<HttpResponse> {
     return this.http.post(config.apiUrl + '/sendNotification', {
       userUid: uid,
       messageText: messageText
@@ -85,6 +86,11 @@ export class UserService {
       .map((res) => res.json())
   }
 
+  /**
+   * This function need for create user object in intair database after users auth
+   * @param userObject
+   * @returns {Observable<R|T>}
+   */
   createUser(userObject: any): Observable<HttpResponse> {
     return this.http
       .put(config.apiUrl + '/createUser', {
@@ -119,8 +125,12 @@ export class UserService {
       .map(res => res.json());
   }
 
-  logOut() {
-    return this.afAuth.auth.signOut();
+  /**
+   * Log out function
+   * @returns {firebase.Promise<any>}
+   */
+  logOut():void {
+    this.afAuth.auth.signOut();
   }
 
   private handlerError(error: any): Promise<any> {
