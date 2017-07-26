@@ -42,13 +42,11 @@ export class AdminPage implements OnInit{
   }
 
   ngOnInit(): void {
-    this.showLoader();
-    this.userService.currentLocalUser.take(1).subscribe((userObject) => {
+    this.userService.currentLocalUser.subscribe((userObject) => {
       this.currentUser = userObject;
       if (this.currentUser.role != 'admin') {
         this.navCtrl.push(HomePage);
       }
-      this.loading.dismiss();
     });
 
     this.segment = 'codes';
@@ -92,6 +90,53 @@ export class AdminPage implements OnInit{
           handler: data => {
             this.showLoader();
             this.codeService.changeCode(data)
+              .take(1)
+              .subscribe((result) => {
+                this.loading.dismiss();
+                if (result.success) {
+                  this.toastService.showToast('success-toast', 'changed');
+                } else {
+                  this.toastService.showToast('error-toast', 'not changed');
+                }
+                return false;
+              })
+          }
+        }
+      ]
+    });
+    alert.present();
+  }
+
+  editUserPrompt(user) {
+    let alert = this.alertCtrl.create({
+      title: 'Change user data',
+      inputs: [
+        {
+          name: 'endTime',
+          placeholder: 'End Time',
+          type: 'number',
+          value: user.endTime
+        },
+        {
+          name: 'uid',
+          type: 'hidden',
+          value: user.uid
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: data => {
+            console.log('Cancel clicked');
+          }
+        },
+        {
+          text: 'Save',
+          handler: data => {
+            this.showLoader();
+            this.userService.changeUser(data)
+              .take(1)
               .subscribe((result) => {
                 this.loading.dismiss();
                 if (result.success) {
@@ -136,6 +181,7 @@ export class AdminPage implements OnInit{
           handler: data => {
             this.showLoader();
             this.codeService.createCode(data)
+              .take(1)
               .subscribe((result) => {
                 this.loading.dismiss();
                 if (result.success) {
@@ -152,9 +198,10 @@ export class AdminPage implements OnInit{
     alert.present();
   }
 
-  deleteCode(codeKey) {
+  deleteCode(codeKey:string) {
     this.showLoader();
     this.codeService.deleteCode(codeKey)
+      .take(1)
       .subscribe((result) => {
         this.loading.dismiss();
         if (result.success) {
@@ -165,6 +212,21 @@ export class AdminPage implements OnInit{
         return false;
       })
   }
+
+  deleteUser(uid:string) {
+    this.showLoader();
+    this.userService.deleteUser(uid)
+      .take(1)
+      .subscribe((result) => {
+        this.loading.dismiss();
+        if (result.success) {
+          this.toastService.showToast('success-toast', 'deleted');
+        } else {
+          this.toastService.showToast('error-toast', 'not deleted');
+        }
+        return false;
+      })
+  };
 
   showLoader(){
     this.loading = this.loadingCtrl.create({

@@ -28,6 +28,8 @@ function getUserObjectByKeyValue(key, val) {
         let userKey = Object.keys(userSnapshot.val())[0];
         let userObject = userSnapshot.val()[userKey];
         userObject.key = userKey;
+        userObject.notificationTokens = userObject.notificationTokens || {};
+        userObject.usedCodes = userObject.usedCodes || {};
         return res(userObject);
       }).catch(rej);
   })
@@ -58,21 +60,21 @@ function getAllValues(object) {
  */
 exports.useCode = functions.https.onRequest((req, res) => applyCors(req, res, () => {
   const codeString = req.body.codeString;
-  const userKey = req.body.userKey;
+  const userUid = req.body.userUid;
   return admin.database().ref('codes').orderByChild("string").equalTo(codeString).once('value')
     .then(codeRef => {
       let codeObject = codeRef.val();
       if (!codeObject) {
-        return res.status(500).send({
+        return res.send({
           success: false,
           errorCode: 1004,
           error: 'Code not found'
         })
       }
       let codeKey = Object.keys(codeObject)[0];
-      return admin.database().ref('/users/'+userKey).once('value')
-        .then(userRef => {
-          let userObject = userRef.val();
+      return getUserObjectByKeyValue('uid', userUid)
+        .then((userObject) => {
+          console.log('userObject', userObject);
           if (userObject.usedCodes[codeKey]) {
             return res.send({
               success: false,
@@ -80,9 +82,9 @@ exports.useCode = functions.https.onRequest((req, res) => applyCors(req, res, ()
               error: 'Code already used'
             })
           }
-          userObject.endTime += codeObject[codeKey].cost;
+          userObject.endTime = +userObject.endTime + codeObject[codeKey].cost;
           userObject.usedCodes[codeKey] = 'true';
-          return admin.database().ref('/users/'+userKey).update(userObject)
+          return admin.database().ref('/users/'+userObject.key).update(userObject)
         })
         .then(() => {
           return res.send({
@@ -93,9 +95,8 @@ exports.useCode = functions.https.onRequest((req, res) => applyCors(req, res, ()
     .catch((err) => {
       console.error(err);
       return res.status(500).send({
-        success: false,
         errorCode: 1000,
-        error: err
+        error: err.json()
       })
     })
 }));
@@ -130,7 +131,7 @@ exports.createUser = functions.https.onRequest((req, res) => applyCors(req, res,
   const role = 'user';
   return admin.database().ref('users')
     .push()
-    .set({name: req.body.name, email: req.body.email, endTime: endTime, uid: req.body.uid})
+    .set({name: req.body.name, email: req.body.email, endTime: endTime, uid: req.body.uid, role: role})
     .then(() => {
       return res.send({
         success: true
@@ -172,6 +173,28 @@ exports.changeCode = functions.https.onRequest((req, res) => applyCors(req, res,
     })
 }));
 
+exports.changeUser = functions.https.onRequest((req, res) => applyCors(req, res, () => {
+  const endTime = req.body.endTime;
+  const uid = req.body.userUid;
+  return getUserObjectByKeyValue('uid', uid)
+    .then((userObject) => {
+      return admin.database().ref('/users/' + userObject.key)
+        .update({endTime: endTime})
+        .then(() => {
+          return res.send({
+            success: true
+          })
+        })
+        .catch((err) => {
+          return res.status(500).send({
+            success: false,
+            error: err,
+            errorCode: 1000
+          })
+        })
+    })
+}));
+
 /**
  *
  * @type {HttpsFunction}
@@ -191,6 +214,27 @@ exports.deleteCode = functions.https.onRequest((req, res) => applyCors(req, res,
         error: err,
         errorCode: 1000
       })
+    })
+}));
+
+exports.deleteUser = functions.https.onRequest((req, res) => applyCors(req, res, () => {
+  const uid = req.query.uid;
+  return getUserObjectByKeyValue('uid', uid)
+    .then((userObject) => {
+      return admin.database().ref('/users/'+userObject.key)
+        .remove()
+        .then(() => {
+          return res.send({
+            success: true
+          })
+        })
+        .catch((err) => {
+          return res.status(500).send({
+            success: false,
+            error: err,
+            errorCode: 1000
+          })
+        })
     })
 }));
 

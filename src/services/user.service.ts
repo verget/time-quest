@@ -23,7 +23,6 @@ export class UserService {
               private http: Http) {
 
     this.currentLocalUser = new Observable(observer => {
-      console.log('===');
       return afAuth.authState.subscribe(user => {
         if (user) {
           return this.getUser(user.uid).subscribe((localUser) => {
@@ -56,6 +55,24 @@ export class UserService {
       }
       return res;
     })
+      .catch((error:any) => Observable.throw(JSON.parse(error._body).error || 'Server error'));
+  }
+
+  deleteUser(uid: string): Observable<HttpResponse> {
+    return this.http
+      .delete(config.apiUrl + '/deleteUser?uid=' + uid)
+      .map(res => res.json())
+      .catch((error:any) => Observable.throw(JSON.parse(error._body).error || 'Server error'));
+  }
+
+  changeUser(data: any): Observable<HttpResponse> {
+    return this.http
+      .post(config.apiUrl + '/changeUser', {
+        endTime: data.endTime,
+        userUid: data.uid
+      })
+      .map(res => res.json())
+      .catch((error:any) => Observable.throw(JSON.parse(error._body).error || 'Server error'));
   }
 
   /**
@@ -69,7 +86,8 @@ export class UserService {
      userUid: uid,
      token: token
     })
-     .map((res) => res.json())
+      .map((res) => res.json())
+      .catch((error:any) => Observable.throw(JSON.parse(error._body).error || 'Server error'));
   }
 
   /**
@@ -84,6 +102,7 @@ export class UserService {
       messageText: messageText
     })
       .map((res) => res.json())
+      .catch((error:any) => Observable.throw(JSON.parse(error._body).error || 'Server error'));
   }
 
   /**
@@ -120,9 +139,10 @@ export class UserService {
     return this.http
       .post(config.apiUrl + '/useCode', {
         codeString: codeString,
-        userKey: userUid,
+        userUid: userUid
       })
-      .map(res => res.json());
+      .map(res => res.json())
+      .catch((error:any) => Observable.throw(JSON.parse(error._body).error || 'Server error'));
   }
 
   /**

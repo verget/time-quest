@@ -60,7 +60,7 @@ export class CodeService {
   }
 
   /**
-   *
+   * Delete Code
    * @param codeKey
    * @returns {Observable<R>}
    */

@@ -52,13 +52,8 @@ export class HomePage implements OnInit, OnDestroy{
   };
 
   ngOnInit(): void {
-    this.showLoader();
     this._messaging = firebase.messaging(this._firebaseApp);
     this.userService.currentLocalUser.subscribe((userObject) => {
-      this.currentUser = userObject;
-    });
-    this.userService.currentLocalUser.subscribe((userObject) => {
-      this.loading.dismiss();
       this.currentUser = userObject;
       this._messaging.requestPermission().then(() => {
         console.log('Notification permission granted.');
@@ -74,8 +69,6 @@ export class HomePage implements OnInit, OnDestroy{
                     this._messaging.getToken()
                       .then((refreshedToken) => {
                         console.log('Token refreshed.');
-                        // Indicate that the new Instance ID token has not yet been sent to the
-                        // app server.
                         this.userService.saveNotificationToken(refreshedToken, userObject.uid)
                           .take(1)
                           .subscribe((res) => {
@@ -113,7 +106,6 @@ export class HomePage implements OnInit, OnDestroy{
       .take(1)
       .subscribe((res) => {
         this.loading.dismiss();
-        console.log(res);
         if (res.success) {
           this.toastService.showToast('success-toast', 'success');
         } else {
@@ -130,6 +122,7 @@ export class HomePage implements OnInit, OnDestroy{
     if (this.codeString) {
       this.showLoader();
       this.userService.useCode(this.codeString, this.currentUser.uid) //todo need validation
+        .take(1)
         .subscribe((result) => {
           this.loading.dismiss();
           this.codeString = '';
@@ -142,7 +135,14 @@ export class HomePage implements OnInit, OnDestroy{
           } else {
             this.toastService.showToast('error-toast', 'undefind error');
           }
-        });
+        },
+          (err) => {
+            console.log('1111');
+            console.log(err);
+            this.loading.dismiss();
+            this.codeString = '';
+            this.toastService.showToast('error-toast', 'undefind error');
+          })
     }
   }
 

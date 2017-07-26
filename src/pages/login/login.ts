@@ -57,12 +57,14 @@ export class LoginPage {
           this.userService.createUser({uid, name, email})
             .subscribe((result) => {
               console.log(result);
+              this.loading.dismiss();
               return this.navCtrl.push(HomePage);
             })
         })
         .catch((err) => {
           this.toastService.showToast('error-toast', err.message);
           console.error('Im catch', err);
+          this.loading.dismiss();
           return false;
         })
     } else {
@@ -76,19 +78,12 @@ export class LoginPage {
       return this.afAuth.auth.signInWithEmailAndPassword(this.userSignInEmail, this.userSignInPassword)
         .then((res) => {
           console.log(res);
+          this.loading.dismiss();
           return this.navCtrl.push(HomePage);
-          // let name = res.displayName;
-          // let email = res.email;
-          // let uid = res.uid;
-          // this.userService.createUser({uid, name, email})
-          //   .take(1)
-          //   .subscribe((result) => {
-          //     console.log(result);
-          //
-          //   })
         })
         .catch((err) => {
           this.toastService.showToast('error-toast', err.message);
+          this.loading.dismiss();
           console.error('Im catch', err);
           return false;
         })
@@ -101,28 +96,31 @@ export class LoginPage {
     return this.afAuth.auth
       .signInWithPopup(provider)
       .then(res => {
-        console.log(res);
-        let name = res.user.displayName;
-        let email = res.user.email;
-        let uid = res.user.uid;
-        this.userService.createUser({uid, name, email})
+        return this.userService.getUser(res.user.uid)
           .take(1)
-          .subscribe((result) => {
-            this.loading.dismiss();
-            console.log(result);
-            return this.navCtrl.push(HomePage);
+          .subscribe((response) => {
+            if (response.uid) {
+              return this.navCtrl.push(HomePage);
+            }
+            let name = res.user.displayName;
+            let email = res.user.email;
+            let uid = res.user.uid;
+            return this.userService.createUser({uid, name, email})
+              .take(1)
+              .subscribe((result) => {
+                this.loading.dismiss();
+                return this.navCtrl.push(HomePage);
+              })
           })
-      })
+      });
   }
 
   signInWithFacebook() {
-    this.showLoader();
     let provider = new firebase.auth.FacebookAuthProvider();
     return this.providerSignIn(provider);
   }
 
   signInWithGoogle() {
-    this.showLoader();
     let provider = new firebase.auth.GoogleAuthProvider();
     return this.providerSignIn(provider);
   }
