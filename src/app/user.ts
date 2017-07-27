@@ -4,6 +4,7 @@ export class User {
   email: string;
   role: string;
   endTime: number;
+  formatedEndTime?: string;
   usedCodes: Object;
   notificationTokens: Object;
 }

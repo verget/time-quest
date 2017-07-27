@@ -21,7 +21,7 @@ import { HomePage } from '../home/home';
 export class AdminPage implements OnInit{
   segment: string;
   codeList: FirebaseListObservable<[Code]>;
-  userList: FirebaseListObservable<[User]>;
+  userList: Observable<[User]>;
   codeStringChange: boolean;
   loading: any;
   currentUser: User;
@@ -90,52 +90,6 @@ export class AdminPage implements OnInit{
           handler: data => {
             this.showLoader();
             this.codeService.changeCode(data)
-              .take(1)
-              .subscribe((result) => {
-                this.loading.dismiss();
-                if (result.success) {
-                  this.toastService.showToast('success-toast', 'changed');
-                } else {
-                  this.toastService.showToast('error-toast', 'not changed');
-                }
-                return false;
-              })
-          }
-        }
-      ]
-    });
-    alert.present();
-  }
-
-  editUserPrompt(user) {
-    let alert = this.alertCtrl.create({
-      title: 'Change user data',
-      inputs: [
-        {
-          name: 'endTime',
-          placeholder: 'End Time',
-          type: 'number',
-          value: user.endTime
-        },
-        {
-          name: 'uid',
-          type: 'hidden',
-          value: user.uid
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: data => {
-            console.log('Cancel clicked');
-          }
-        },
-        {
-          text: 'Save',
-          handler: data => {
-            this.showLoader();
-            this.userService.changeUser(data)
               .take(1)
               .subscribe((result) => {
                 this.loading.dismiss();
@@ -227,6 +181,26 @@ export class AdminPage implements OnInit{
         return false;
       })
   };
+
+  changeEndTime(user: User) {
+    this.showLoader();
+    let changedTime = Date.parse(user.formatedEndTime);
+    this.userService.changeUserTime(user.uid, changedTime)
+      .take(1)
+      .subscribe((result) => {
+        this.loading.dismiss();
+        if (result.success) {
+          this.toastService.showToast('success-toast', 'changed');
+        } else {
+          this.toastService.showToast('error-toast', 'not changed');
+        }
+        return false;
+      },
+        (err) => {
+          console.error(err);
+          this.loading.dismiss();
+        })
+  }
 
   showLoader(){
     this.loading = this.loadingCtrl.create({

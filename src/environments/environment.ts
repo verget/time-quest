@@ -1,6 +1,6 @@
 export const config = {
   production: false,
-  apiUrl: 'https://us-central1-time-quest-f4076.cloudfunctions.net',
+  apiUrl: 'https://us-central1-time-quest-f4076.cloudfunctions.net/app',
   firebase: {
     apiKey: 'AIzaSyA_pspXank-juADVAHX5yqoSNL-aEYSv04',
     authDomain: 'time-quest-f4076.firebaseapp.com',

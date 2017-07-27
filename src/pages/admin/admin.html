@@ -41,15 +41,15 @@
 
     <ion-list *ngSwitchCase="'users'">
       <ion-item *ngFor="let user of userList | async">
-        <h2>{{user.name}}</h2>
-        <ion-note item-end class="note">
-          {{user.endTime}}
-        </ion-note>
-        <button ion-button icon-end round item-end (click)="editUserPrompt(user)">
-          Edit
-          <ion-icon name="create"></ion-icon>
-        </button>
-        <button ion-button icon-end round item-end color="secondary" (click)="sendNotificationPrompt(user)">
+        <!--<h2>{{user.name}}</h2>-->
+        <!--<ion-note item-end class="note">-->
+          <!--{{user.endTime}}-->
+        <!--</ion-note>-->
+  
+        <ion-label>{{user.name}}</ion-label>
+        <ion-datetime displayFormat="MMM DD, YYYY HH:mm" pickerFormat="DD HH:mm" (ionChange)="changeEndTime(user)" [(ngModel)]="user.formatedEndTime"></ion-datetime>
+        
+        <button ion-button icon-end round item-end (click)="sendNotificationPrompt(user)">
           Notifi
           <ion-icon name="send"></ion-icon>
         </button>

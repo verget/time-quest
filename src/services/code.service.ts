@@ -37,7 +37,7 @@ export class CodeService {
    */
   createCode(data: Code): Observable<HttpResponse> {
     return this.http
-      .put(config.apiUrl + '/createCode', {
+      .put(config.apiUrl + '/code', {
         codeString: data.string,
         codeCost: data.cost
       })
@@ -66,7 +66,7 @@ export class CodeService {
    */
   deleteCode(codeKey: string): Observable<HttpResponse> {
     return this.http
-      .delete(config.apiUrl + '/deleteCode?key=' + codeKey)
+      .delete(config.apiUrl + '/code/' + codeKey)
       .map(res => res.json());
   }
 

@@ -60,16 +60,16 @@ export class UserService {
 
   deleteUser(uid: string): Observable<HttpResponse> {
     return this.http
-      .delete(config.apiUrl + '/deleteUser?uid=' + uid)
+      .delete(config.apiUrl + '/user/' + uid)
       .map(res => res.json())
       .catch((error:any) => Observable.throw(JSON.parse(error._body).error || 'Server error'));
   }
 
-  changeUser(data: any): Observable<HttpResponse> {
+  changeUserTime(uid: string, endTime: number): Observable<HttpResponse> {
     return this.http
-      .post(config.apiUrl + '/changeUser', {
-        endTime: data.endTime,
-        userUid: data.uid
+      .post(config.apiUrl + '/changeUserTime', {
+        endTime: endTime,
+        userUid: uid
       })
       .map(res => res.json())
       .catch((error:any) => Observable.throw(JSON.parse(error._body).error || 'Server error'));
@@ -82,12 +82,12 @@ export class UserService {
    * @returns {Observable<R>}
    */
   saveNotificationToken(token: string, uid: string): Observable<HttpResponse> {
-    return this.http.post(config.apiUrl + '/saveToken', {
-     userUid: uid,
-     token: token
+    return this.http.put(config.apiUrl + '/token', {
+      userUid: uid,
+      token: token
     })
-      .map((res) => res.json())
-      .catch((error:any) => Observable.throw(JSON.parse(error._body).error || 'Server error'));
+    .map((res) => res.json())
+    .catch((error:any) => Observable.throw(JSON.parse(error._body).error || 'Server error'));
   }
 
   /**
@@ -112,7 +112,7 @@ export class UserService {
    */
   createUser(userObject: any): Observable<HttpResponse> {
     return this.http
-      .put(config.apiUrl + '/createUser', {
+      .put(config.apiUrl + '/user', {
         name: userObject.name,
         uid: userObject.uid,
         email: userObject.email
@@ -125,8 +125,15 @@ export class UserService {
    * Retun user list observable
    * @returns {FirebaseListObservable<any[]>}
    */
-  getUserListObservable(): FirebaseListObservable<[User]> {
-    return this.db.list('/users');
+  getUserListObservable(): Observable<[User]> {
+    return this.db.list('/users').map( res => {
+      let array = [];
+      res.forEach((user) => {
+        user.formatedEndTime = new Date(user.endTime*1).toISOString();
+        array.push(user);
+      });
+      return array;
+    })
   }
 
   /**
