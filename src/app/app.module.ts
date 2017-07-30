@@ -22,8 +22,6 @@ import { ToastService } from "../services/toast.service";
 import { ToolsService } from "../services/tools.service";
 import { TimerPipe } from './timer.pipe';
 
-
-
 @NgModule({
   declarations: [
     MyApp,

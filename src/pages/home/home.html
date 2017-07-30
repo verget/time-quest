@@ -1,15 +1,25 @@
 <ion-header>
   <ion-navbar>
-    <button ion-button menuToggle *ngIf="currentUser.role == 'admin'">
-      <ion-icon name="menu"></ion-icon>
-    </button>
-    <ion-title>
-      Time Quest
-    </ion-title>
-    <button ion-button (click)="logout()">
-      Logout
-    </button>
-    {{currentUser.name}}
+    <ion-grid>
+      <ion-row>
+        <ion-col col-1>
+          <button ion-button menuToggle *ngIf="currentUser.role == 'admin'">
+            <ion-icon name="menu"></ion-icon>
+          </button>
+        </ion-col>
+        <ion-col col-9>
+          <ion-title>
+            Time Quest
+          </ion-title>
+        </ion-col>
+        <ion-col col-2>
+          <div class="user-name">{{currentUser.name}}</div>
+          <button ion-button (click)="logout()" outline color="danger" small>
+            Logout
+          </button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   </ion-navbar>
 </ion-header>
 
@@ -24,28 +34,14 @@
     <ion-row>
       <ion-col col-2></ion-col>
       <ion-col col-5>
-        <ion-item class="no-padding">
-          <ion-label floating>Код</ion-label>
+        <ion-item class="no-padding painted">
+          <ion-label floating>Code</ion-label>
           <ion-input type="text"[(ngModel)]="codeString"></ion-input>
         </ion-item>
       </ion-col>
       <ion-col col-3>
         <div padding>
-          <button ion-button color="primary" block (click)="checkCode()">Ввод</button>
-        </div>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col col-2></ion-col>
-      <ion-col col-5>
-        <ion-item class="no-padding">
-          <ion-label floating>Сообщение</ion-label>
-          <ion-input type="text" [(ngModel)]="messageToSend"></ion-input>
-        </ion-item>
-      </ion-col>
-      <ion-col col-3>
-        <div padding>
-          <button ion-button color="primary" block (click)="sendMessageToUser()">Send</button>
+          <button ion-button color="light" block outline (click)="checkCode()">Enter</button>
         </div>
       </ion-col>
     </ion-row>

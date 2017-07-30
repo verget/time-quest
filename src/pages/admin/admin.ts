@@ -152,6 +152,46 @@ export class AdminPage implements OnInit{
     alert.present();
   }
 
+  sendNotificationPrompt(uid: string) {
+    let alert = this.alertCtrl.create({
+      title: 'Send notification to user',
+      inputs: [
+        {
+          name: 'message',
+          placeholder: 'message',
+          type: 'text'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: data => {
+            console.log('Cancel clicked');
+          }
+        },
+        {
+          text: 'Send',
+          handler: data => {
+            this.showLoader();
+            this.userService.sendNotificationToUser(uid, data.message)
+              .take(1)
+              .subscribe((result) => {
+                this.loading.dismiss();
+                if (result.success) {
+                  this.toastService.showToast('success-toast', 'sent');
+                } else {
+                  this.toastService.showToast('error-toast', 'not sent');
+                }
+                return false;
+              })
+          }
+        }
+      ]
+    });
+    alert.present();
+  }
+
   deleteCode(codeKey:string) {
     this.showLoader();
     this.codeService.deleteCode(codeKey)

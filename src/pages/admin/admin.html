@@ -32,7 +32,7 @@
           Edit
           <ion-icon name="create"></ion-icon>
         </button>
-        
+
         <button ion-button icon-end item-end color="danger" clear (click)="deleteCode(code.$key)">
           <ion-icon name="trash"></ion-icon>
         </button>
@@ -45,22 +45,22 @@
         <!--<ion-note item-end class="note">-->
           <!--{{user.endTime}}-->
         <!--</ion-note>-->
-  
+
         <ion-label>{{user.name}}</ion-label>
         <ion-datetime displayFormat="MMM DD, YYYY HH:mm" pickerFormat="DD HH:mm" (ionChange)="changeEndTime(user)" [(ngModel)]="user.formatedEndTime"></ion-datetime>
-        
-        <button ion-button icon-end round item-end (click)="sendNotificationPrompt(user)">
+
+        <button ion-button icon-end round item-end (click)="sendNotificationPrompt(user.uid)">
           Notifi
           <ion-icon name="send"></ion-icon>
         </button>
-  
+
         <button ion-button icon-end item-end color="danger" clear (click)="deleteUser(user.uid)">
           <ion-icon name="trash"></ion-icon>
         </button>
       </ion-item>
     </ion-list>
   </div>
-  
+
   <ion-fab right bottom *ngIf="segment == 'codes'">
     <button ion-fab color="secondary" (click)="createCodePrompt()">
       <ion-icon name="add"></ion-icon>

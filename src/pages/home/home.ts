@@ -23,7 +23,6 @@ export class HomePage implements OnInit, OnDestroy{
   codeString: string;
   currentUser: User;
   loading: any;
-  messageToSend: string;
   _messaging: firebase.messaging.Messaging;
 
   constructor(private afAuth: AngularFireAuth,
@@ -55,6 +54,7 @@ export class HomePage implements OnInit, OnDestroy{
     this._messaging = firebase.messaging(this._firebaseApp);
     this.userService.currentLocalUser.subscribe((userObject) => {
       this.currentUser = userObject;
+      console.log(userObject);
       this._messaging.requestPermission().then(() => {
         console.log('Notification permission granted.');
         this._messaging.getToken().then((currentToken) => {
@@ -98,20 +98,6 @@ export class HomePage implements OnInit, OnDestroy{
           this.timeDiff = this.currentUser.endTime - currentTimestamp;
         }
       });
-  }
-
-  sendMessageToUser(): void {
-    this.showLoader();
-    this.userService.sendNotificationToUser(this.currentUser.uid, this.messageToSend)
-      .take(1)
-      .subscribe((res) => {
-        this.loading.dismiss();
-        if (res.success) {
-          this.toastService.showToast('success-toast', 'success');
-        } else {
-          this.toastService.showToast('error-toast', 'undefind error');
-        }
-      })
   }
 
   ngOnDestroy(): void {

@@ -35,3 +35,7 @@ UserInterfaceState.xcuserstate
 /.idea/
 time-quest.iml
 !/www/cordova.js
+/src/assets/assets/
+!/www/images/
+!/www/index.html
+!/www/assets/
