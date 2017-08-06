@@ -39,26 +39,49 @@
       </ion-item>
     </ion-list>
 
-    <ion-list *ngSwitchCase="'users'">
-      <ion-item *ngFor="let user of userList | async">
-        <!--<h2>{{user.name}}</h2>-->
-        <!--<ion-note item-end class="note">-->
-          <!--{{user.endTime}}-->
-        <!--</ion-note>-->
+    <div *ngSwitchCase="'users'">
+      <!--<ion-item *ngFor="let user of userList | async">-->
+        <!--<ion-label>{{user.name}}</ion-label>-->
+        <!--<ion-datetime displayFormat="MMM DD, YYYY HH:mm" pickerFormat="DD HH:mm" (ionChange)="changeEndTime(user)" [(ngModel)]="user.formatedEndTime"></ion-datetime>-->
+        <!--<button ion-button icon-end round item-end (click)="sendNotificationPrompt(user.uid)">-->
+          <!--Notifi-->
+          <!--<ion-icon name="send"></ion-icon>-->
+        <!--</button>-->
 
-        <ion-label>{{user.name}}</ion-label>
-        <ion-datetime displayFormat="MMM DD, YYYY HH:mm" pickerFormat="DD HH:mm" (ionChange)="changeEndTime(user)" [(ngModel)]="user.formatedEndTime"></ion-datetime>
-
-        <button ion-button icon-end round item-end (click)="sendNotificationPrompt(user.uid)">
-          Notifi
-          <ion-icon name="send"></ion-icon>
-        </button>
-
-        <button ion-button icon-end item-end color="danger" clear (click)="deleteUser(user.uid)">
-          <ion-icon name="trash"></ion-icon>
-        </button>
-      </ion-item>
-    </ion-list>
+        <!--<button ion-button icon-end item-end color="danger" clear (click)="deleteUser(user.uid)">-->
+          <!--<ion-icon name="trash"></ion-icon>-->
+        <!--</button>-->
+      <!--</ion-item>-->
+  
+      <ion-card  *ngFor="let user of userList | async">
+    
+        <ion-card-header>
+          {{user.name}}
+        </ion-card-header>
+    
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col col-6>
+                <ion-datetime displayFormat="MMM DD, YYYY HH:mm" pickerFormat="DD HH:mm" (ionChange)="changeEndTime(user)" [(ngModel)]="user.formatedEndTime"></ion-datetime>
+              </ion-col>
+              <ion-col col-4>
+                <button ion-button icon-end round small (click)="sendNotificationPrompt(user.uid)">
+                  Notifi
+                  <ion-icon name="send"></ion-icon>
+                </button>
+              </ion-col>
+              <ion-col col-2 text-center>
+                <button ion-button icon-end small color="danger" clear (click)="deleteUser(user.uid)">
+                  <ion-icon name="trash"></ion-icon>
+                </button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+  
+      </ion-card>
+    </div>
   </div>
 
   <ion-fab right bottom *ngIf="segment == 'codes'">

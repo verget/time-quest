@@ -218,7 +218,7 @@ app.post('/sendNotification', (req, res) => {
         })
       }
       console.log(notificationTokens);
-      return admin.messaging().sendToDevice(notificationTokens, payload)
+      return admin.messaging().sendToDevice(notificationTokens, payload);
     })
     .then((response) => {
       console.log("Successfully sent message:", response);
