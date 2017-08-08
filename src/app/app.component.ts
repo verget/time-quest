@@ -38,7 +38,7 @@ export class MyApp {
     });
 
     this._messaging = firebase.messaging(this._firebaseApp);
-    navigator.serviceWorker.register('../../service-worker.js') //register custom service-worker for firebase cloud messaging
+    navigator.serviceWorker.register('../service-worker.js') //register custom service-worker for firebase cloud messaging
       .then((registration) => {
         this._messaging.useServiceWorker(registration);
       })
